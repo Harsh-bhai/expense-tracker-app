@@ -1,5 +1,4 @@
 import 'package:expense_tracker/models/listtile_model.dart';
-import 'package:expense_tracker/utils/utils.dart';
 import 'package:flutter/material.dart';
 
 class CategoryBox extends StatelessWidget {
@@ -20,9 +19,7 @@ class CategoryBox extends StatelessWidget {
         children: [
           CircleAvatar(
             radius: 24.0,
-            backgroundColor: category.expenseEnum != null
-                ? getColorFromExpense(category.expenseEnum!)
-                : Colors.grey,
+            backgroundColor: category.bgColor ?? Colors.blue,
             child: Icon(
               category.icon,
               color: Colors.white,
@@ -54,36 +51,4 @@ class CategoryBox extends StatelessWidget {
     );
   }
 
-  Color getColorFromExpense(Expense expense) {
-    switch (expense) {
-      case Expense.food:
-        return Colors.red;
-      case Expense.shopping:
-        return Colors.blue;
-      case Expense.travelling:
-        return Colors.green;
-      case Expense.entertainment:
-        return Colors.orange;
-      case Expense.medical:
-        return Colors.purple;
-      case Expense.personalCare:
-        return Colors.pink;
-      case Expense.education:
-        return Colors.cyan;
-      case Expense.householdBills:
-        return Colors.brown;
-      case Expense.investment:
-        return Colors.teal;
-      case Expense.rent:
-        return Colors.indigo;
-      case Expense.tax:
-        return Colors.grey;
-      case Expense.insurance:
-        return Colors.yellow;
-      case Expense.gifts:
-        return Colors.lightGreen;
-      default:
-        return Colors.white;
-    }
-  }
 }

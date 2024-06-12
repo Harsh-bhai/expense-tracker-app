@@ -6,6 +6,10 @@ class ListTileModel {
   final String? subtitle;
   final Widget? page;
   final IconData? icon;
-  final Expense? expenseEnum;
-  const ListTileModel({this.title, this.subtitle, this.page, this.icon, this.expenseEnum});
+  final String? categoryName;
+  final VoidCallback? onTap;
+  final Color? bgColor;
+  final Color? iconColor;
+  final BuildContext? context;
+  const ListTileModel({this.title, this.subtitle, this.page, this.icon,this.categoryName,this.onTap,this.bgColor,this.iconColor,this.context});
 }

@@ -1,13 +1,16 @@
+import 'package:expense_tracker/provider/category_notifier.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
 import 'package:expense_tracker/screens/transactions.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => MoneyNotifier()),
+        ChangeNotifierProvider(create: (_) => CateogryNotifier()),
       ],
       child: const MyApp(),
     ),

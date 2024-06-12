@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:expense_tracker/provider/money_notifier.dart';
 import 'package:expense_tracker/screens/settings_page.dart';
 import 'package:flutter/cupertino.dart';
@@ -147,6 +149,7 @@ class _TransactionsState extends State<Transactions>
   }
 
   Widget _buildMessagesListView(List<SmsMessage> messages) {
+    // print("addresrs : ${messages[0].address} id:  ${messages[0].id}");
     return messages.isEmpty
         ? const Center(child: CircularProgressIndicator())
         : ListView.builder(
