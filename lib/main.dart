@@ -1,11 +1,17 @@
+import 'package:expense_tracker/models/hive_expense_categories.dart';
 import 'package:expense_tracker/provider/category_notifier.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
 import 'package:expense_tracker/screens/transactions.dart';
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Hive.initFlutter();
+  Hive.registerAdapter(HiveExpenseCateogryAdapter());
+
+
   runApp(
     MultiProvider(
       providers: [
