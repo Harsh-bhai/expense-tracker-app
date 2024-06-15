@@ -1,8 +1,9 @@
+import 'package:expense_tracker/models/hive_listtile_model.dart';
 import 'package:expense_tracker/models/listtile_model.dart';
 import 'package:flutter/material.dart';
 
 class CategoryBox extends StatelessWidget {
-  final ListTileModel category;
+  final HiveListTileModel category;
 
   const CategoryBox({super.key, required this.category});
 
@@ -21,7 +22,7 @@ class CategoryBox extends StatelessWidget {
             radius: 24.0,
             backgroundColor: category.bgColor ?? Colors.blue,
             child: Icon(
-              category.icon,
+              category.iconData,
               color: Colors.white,
               size: 24.0,
             ),

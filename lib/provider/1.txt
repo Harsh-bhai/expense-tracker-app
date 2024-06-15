@@ -1,0 +1,182 @@
+ok let me tell you every thing from begining,
+i want to store categories info, so there are many categories so i decided to store as a form of List<HiveLIstTileModel>
+
+HIveListTileModel
+import 'package
+/material.dart';
+import 'package
+/hive.dart';
+
+part 'hive_listtile_model.g.dart';
+
+@HiveType(typeId: 0)
+class HiveListTileModel extends HiveObject {
+@HiveField(0)
+String? title;
+
+@HiveField(1)
+String? subtitle;
+
+@HiveField(2)
+String? page;
+
+@HiveField(3)
+int? iconCodePoint;
+
+@HiveField(4)
+String? iconFontFamily;
+
+@HiveField(5)
+String? iconFontPackage;
+
+@HiveField(6)
+String? categoryName;
+
+@HiveField(7)
+String? onTap;
+
+@HiveField(8)
+int? bgColorValue;
+
+@HiveField(9)
+int? iconColorValue;
+
+HiveListTileModel({
+this.title,
+this.subtitle,
+this.page,
+IconData? icon,
+this.iconFontFamily,
+this.iconFontPackage,
+this.categoryName,
+this.onTap,
+Color? bgColor,
+Color? iconColor,
+}) {
+iconCodePoint = icon?.codePoint;
+iconFontFamily = icon?.fontFamily;
+iconFontPackage = icon?.fontPackage;
+bgColorValue = bgColor?.value;
+iconColorValue = iconColor?.value;
+}
+
+IconData? get icon => iconCodePoint == null
+? null
+: IconData(iconCodePoint!, fontFamily: iconFontFamily, fontPackage: iconFontPackage);
+
+Color? get bgColor => bgColorValue == null ? null : Color(bgColorValue!);
+Color? get iconColor => iconColorValue == null ? null : Color(iconColorValue!);
+}
+
+main.dart file
+import 'package
+/models/hive_listtile_model.dart';
+import 'package
+/provider/category_notifier.dart';
+import 'package
+/provider/money_notifier.dart';
+import 'package
+/screens/transactions_page.dart';
+import 'package
+/material.dart';
+import 'package
+/hive_flutter.dart';
+import 'package
+/provider.dart';
+
+void main() async {
+WidgetsFlutterBinding.ensureInitialized();
+await Hive.initFlutter();
+Hive.registerAdapter(HiveListTileModelAdapter()); // Register the generated adapter
+await Hive.openBox<List<HiveListTileModel>>('categoryBox');
+
+runApp(
+MultiProvider(
+providers: [
+ChangeNotifierProvider(create: () => MoneyNotifier()),
+ChangeNotifierProvider(create: () => CategoryNotifier()),
+],
+child: const MyApp(),
+),
+);
+}
+
+class MyApp extends StatelessWidget {
+const MyApp({super.key});
+
+// This widget is the root of your application.
+@override
+Widget build(BuildContext context) {
+return MaterialApp(
+title: 'Flutter Demo',
+theme: ThemeData(
+colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+useMaterial3: true,
+),
+home: const Transactions(),
+);
+}
+}
+
+category_notifier.dart
+
+import 'package
+/material.dart';
+import 'package
+/hive.dart';
+import '../models/hive_listtile_model.dart'; // Import the Hive-adapted model
+
+class CategoryNotifier extends ChangeNotifier {
+List<HiveListTileModel> _expenseCategories = [];
+List<HiveListTileModel> _incomeCategories = [];
+
+List<HiveListTileModel> get expenseCategories => _expenseCategories;
+List<HiveListTileModel> get incomeCategories => _incomeCategories;
+
+// box instance 
+final Box<List<HiveListTileModel>> box = Hive.box<List<HiveListTileModel>>('categoryBox'); 
+
+void getCategories() {
+_expenseCategories = box.get('ExpenseCategoryArray', defaultValue: List<HiveListTileModel>.empty()) ?? List<HiveListTileModel>.empty();
+_incomeCategories = box.get('IncomeCategoryArray', defaultValue: List<HiveListTileModel>.empty()) ?? List<HiveListTileModel>.empty();
+notifyListeners();
+}
+
+void updateCategories() {
+box.put('ExpenseCategoryArray', _expenseCategories);
+box.put('IncomeCategoryArray', _incomeCategories);
+notifyListeners();
+}
+
+void addCategory(HiveListTileModel category) {
+_expenseCategories.add(category);
+updateCategories();
+}
+
+void deleteCategory(HiveListTileModel category) {
+_expenseCategories.remove(category);
+updateCategories();
+}
+
+void addIncomeCategory(HiveListTileModel category) {
+_incomeCategories.add(category);
+updateCategories();
+}
+
+void deleteIncomeCategory(HiveListTileModel category) {
+_incomeCategories.remove(category);
+updateCategories();
+}
+
+void deleteAllExpenseCategories() {
+_expenseCategories = [];
+updateCategories();
+}
+
+void deleteAllIncomeCategories() {
+_incomeCategories = [];
+updateCategories();
+}
+}
+
+now tell me why it is giving error as type List<dynamic> is not a subtype of List<HiveListTileModel>

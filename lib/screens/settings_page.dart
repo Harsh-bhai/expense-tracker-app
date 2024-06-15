@@ -1,51 +1,51 @@
 import 'package:expense_tracker/models/listtile_model.dart';
-import 'package:expense_tracker/screens/categories.dart';
+import 'package:expense_tracker/screens/categories_page.dart';
 import 'package:expense_tracker/screens/pie_chart.dart';
 import 'package:flutter/material.dart';
 
 class SettingsPage extends StatelessWidget {
   // List of settings options using ListTileModel
   final List<ListTileModel> settingsOptions = [
-     const ListTileModel(
+     ListTileModel(
       title: 'Account',
       subtitle: 'Manage your account settings',
       icon: Icons.account_circle,
-      page: CategoryPage(),
+      page: const CategoryPage(),
     ),
-     const ListTileModel(
+     ListTileModel(
       title: 'Categories',
       subtitle: 'Manage your categories',
       icon: Icons.category,
-      page: CategoryPage(),
+      page: const CategoryPage(),
     ),
-     const ListTileModel(
+     ListTileModel(
       title: 'Privacy',
       subtitle: 'Adjust your privacy settings',
       icon: Icons.lock,
-      page: CategoryPage(),
+      page: const CategoryPage(),
     ),
-     const ListTileModel(
+     ListTileModel(
       title: 'Pie Chart',
       subtitle: 'Pie Chart',
       icon: Icons.language,
-      page: PieChartPage(),
+      page: const PieChartPage(),
     ),
-     const ListTileModel(
+     ListTileModel(
       title: 'Help',
       subtitle: 'Get help and support',
       icon: Icons.help,
-      page: CategoryPage()    ),
-     const ListTileModel(
+      page: const CategoryPage()    ),
+     ListTileModel(
       title: 'About',
       subtitle: 'Learn more about us',
       icon: Icons.info,
-      page: CategoryPage()
+      page: const CategoryPage()
     ),
-     const ListTileModel(
+     ListTileModel(
       title: 'Log Out',
       subtitle: 'Sign out of your account',
       icon: Icons.exit_to_app,
-      page: CategoryPage(),
+      page: const CategoryPage(),
     ),
     
   ];
