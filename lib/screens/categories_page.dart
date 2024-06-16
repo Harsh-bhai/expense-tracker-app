@@ -19,20 +19,19 @@ class CategoryPage extends StatefulWidget {
 class _CategoryPageState extends State<CategoryPage>
     with TickerProviderStateMixin {
   late TabController _tabController;
-  final HiveListTileModel addCategory =  HiveListTileModel(
+  final HiveListTileModel addCategory = HiveListTileModel(
     title: 'Add Category',
     subtitle: 'create your category',
     icon: Icons.add,
-    categoryName: "add",
     bgColor: Colors.grey,
   );
 
   @override
   void initState() {
     super.initState();
-    CategoryNotifier categoryNotifier =
-        Provider.of<CategoryNotifier>(context, listen: false);
-    categoryNotifier.getCategories();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<CategoryNotifier>(context, listen: false).getCategories();
+    });
     _tabController = TabController(length: 2, vsync: this);
   }
 
@@ -45,22 +44,28 @@ class _CategoryPageState extends State<CategoryPage>
   @override
   Widget build(BuildContext context) {
     CategoryNotifier categoryNotifier = Provider.of<CategoryNotifier>(context);
+    //TODO - save example data in hive
+    // HiveListTileModel defaultExpenseCategory = categoryNotifier.exampleCategories[0];
+    // HiveListTileModel defaultIncomeCategory = categoryNotifier.exampleCategories[1];
+    HiveListTileModel defaultExpenseCategory = HiveListTileModel();
+    HiveListTileModel defaultIncomeCategory = HiveListTileModel();
+
     List<HiveListTileModel> ExpenseCateogry = [
-       HiveListTileModel(
-          title: 'Food',
-          subtitle: 'Groceries, restaurants, etc.',
-          icon: Icons.fastfood,
-          categoryName: "food",
-          bgColor: Colors.red),
+      HiveListTileModel(
+          title: defaultExpenseCategory.title ?? 'Food',
+          subtitle:
+              defaultExpenseCategory.subtitle ?? 'Groceries, restaurants, etc.',
+          icon: defaultExpenseCategory.iconData ?? Icons.fastfood,
+          bgColor: defaultExpenseCategory.bgColor ?? Colors.red),
       ...categoryNotifier.expenseCategories,
     ];
     List<HiveListTileModel> IncomeCateogry = [
-       HiveListTileModel(
-          title: 'Salary',
-          subtitle: 'Monthly salary',
-          icon: Icons.attach_money,
-          categoryName: "salary",
-          bgColor: Colors.green),
+      HiveListTileModel(
+          title: defaultIncomeCategory.title ?? 'Salary',
+          subtitle:
+              defaultIncomeCategory.subtitle ?? 'Groceries, restaurants, etc.',
+          icon: defaultIncomeCategory.iconData ?? Icons.currency_rupee_sharp,
+          bgColor: defaultIncomeCategory.bgColor ?? Colors.green),
       ...categoryNotifier.incomeCategories,
     ];
     return Scaffold(
@@ -77,14 +82,19 @@ class _CategoryPageState extends State<CategoryPage>
       body: TabBarView(
         controller: _tabController,
         children: [
-          categoryView(ExpenseCateogry),
-          categoryView(IncomeCateogry),
+          categoryView(ExpenseCateogry,
+              defaultCategory: defaultExpenseCategory, expense: true),
+          categoryView(IncomeCateogry,
+              defaultCategory: defaultIncomeCategory, income: true),
         ],
       ),
     );
   }
 
-  Padding categoryView(List<HiveListTileModel> categoryList) {
+  Padding categoryView(List<HiveListTileModel> categoryList,
+      {HiveListTileModel? defaultCategory,
+      bool expense = false,
+      bool income = false}) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: GridView.builder(
@@ -96,145 +106,238 @@ class _CategoryPageState extends State<CategoryPage>
           childAspectRatio: 1,
         ),
         itemBuilder: (context, index) {
-          // Add category box as the first item
+          // add category box
           if (index == 0) {
             return InkWell(
               onTap: () {
                 showDialog(
+                  context: context,
+                  builder: (context) => CategoryDialog(
                     context: context,
-                    builder: (context) => addCategoryDialog(context: context));
+                    addFunction: true,
+                    expense: expense,
+                    income: income,
+                  ),
+                );
               },
               child: CategoryBox(category: addCategory),
             );
+            // default example category
+          } else if (index == 1) {
+            if (expense) {
+              return InkWell(
+                onLongPress: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => CategoryDialog(
+                      context: context,
+                      category: defaultCategory,
+                      updateFunction: true,
+                      expense: expense,
+                      income: income,
+                    ),
+                  );
+                },
+                child: CategoryBox(category: categoryList[0]),
+              );
+            }
+            // user categories
           } else {
-            return CategoryBox(category: categoryList[index - 1]);
+            return InkWell(
+              onLongPress: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => CategoryDialog(
+                    context: context,
+                    category: categoryList[index - 1],
+                    updateFunction: true,
+                    expense: expense,
+                    income: income,
+                  ),
+                );
+              },
+              child: CategoryBox(category: categoryList[index - 1]),
+            );
           }
+          return null;
         },
       ),
     );
   }
 
-  AlertDialog addCategoryDialog({required BuildContext context}) {
-  CategoryNotifier categoryNotifier = Provider.of<CategoryNotifier>(context, listen: false);
-  TextEditingController categoryNameController = TextEditingController();
-  TextEditingController subtitleController = TextEditingController();
-  IconData? selectedIcon;
-  Color selectedColor = Colors.blue;
+  AlertDialog CategoryDialog({
+    required BuildContext context,
+    HiveListTileModel? category,
+    bool addFunction = false,
+    bool updateFunction = false,
+    bool expense = false,
+    bool income = false,
+  }) {
+    CategoryNotifier categoryNotifier =
+        Provider.of<CategoryNotifier>(context, listen: false);
+    TextEditingController titleController =
+        TextEditingController(text: category?.title ?? '');
+    TextEditingController subtitleController =
+        TextEditingController(text: category?.subtitle ?? '');
+    IconData? selectedIcon = category?.iconData;
+    Color selectedColor = category?.bgColor ?? Colors.blue;
+    HiveListTileModel exampleExpenseCategory = HiveListTileModel(
+      title: 'Food',
+      subtitle: 'Groceries, restaurants, etc.',
+      icon: Icons.fastfood,
+      bgColor: Colors.red,
+    );
+    HiveListTileModel exampleIncomeCategory = HiveListTileModel(
+      title: 'Salary',
+      subtitle: 'Groceries, restaurants, etc.',
+      icon: Icons.currency_rupee_sharp,
+      bgColor: Colors.green,
+    );
 
-  return AlertDialog(
-    title: const Text('Add Category'),
-    content: StatefulBuilder(
-      builder: (BuildContext context, StateSetter setState) {
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              TextField(
-                controller: categoryNameController,
-                decoration: const InputDecoration(
-                  labelText: 'Category Name',
+    if (expense) {
+      titleController.text =
+          (category?.title ?? exampleExpenseCategory.title) ?? "";
+      subtitleController.text =
+          (category?.subtitle ?? exampleExpenseCategory.subtitle) ?? "";
+
+      selectedIcon = category?.iconData ?? exampleExpenseCategory.iconData;
+      selectedColor = category?.bgColor ?? exampleExpenseCategory.bgColor ?? Colors.red;
+    }
+    if (income) {
+      titleController.text =
+          (category?.title ?? exampleIncomeCategory.title) ?? "";
+      subtitleController.text =
+          (category?.subtitle ?? exampleIncomeCategory.subtitle) ?? "";
+
+      selectedIcon = category?.iconData ?? exampleIncomeCategory.iconData;
+      selectedColor = category?.bgColor ?? exampleIncomeCategory.bgColor ?? Colors.blue;
+    }
+
+    return AlertDialog(
+      title: addFunction
+          ? const Text('Add Category')
+          : const Text('Update Category'),
+      content: StatefulBuilder(
+        builder: (BuildContext context, StateSetter setState) {
+          return SingleChildScrollView(
+            child: Column(
+              children: [
+                TextField(
+                  controller: titleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Category Name',
+                  ),
                 ),
-              ),
-              TextField(
-                controller: subtitleController,
-                decoration: const InputDecoration(
-                  labelText: 'Description',
+                TextField(
+                  controller: subtitleController,
+                  decoration: const InputDecoration(
+                    labelText: 'Description',
+                  ),
                 ),
-              ),
-              ListTile(
-                title: const Text('Pick Icon'),
-                trailing: selectedIcon != null
-                    ? Icon(
-                        selectedIcon,
-                        size: 30,
-                      )
-                    : null,
-                onTap: () async {
-                  IconData? icon = await showIconPicker(context,
+                ListTile(
+                  title: const Text('Pick Icon'),
+                  trailing: selectedIcon != null
+                      ? Icon(
+                          selectedIcon,
+                          size: 30,
+                        )
+                      : null,
+                  onTap: () async {
+                    IconData? icon = await showIconPicker(
+                      context,
                       iconPackModes: <IconPack>[
                         IconPack.fontAwesomeIcons,
                         IconPack.material,
                       ],
                       showSearchBar: true,
-                      closeChild: const Text("OK"));
-                  if (icon != null) {
-                    setState(() {
-                      selectedIcon = icon;
-                    });
-                  }
-                },
-              ),
-              ListTile(
-                title: const Text('Pick Color'),
-                trailing: CircleAvatar(
-                  backgroundColor: selectedColor,
-                  radius: 12,
+                      closeChild: const Text("OK"),
+                    );
+                    if (icon != null) {
+                      setState(() {
+                        selectedIcon = icon;
+                      });
+                    }
+                  },
                 ),
-                onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return AlertDialog(
-                        title: const Text('Pick a color'),
-                        content: SingleChildScrollView(
-                          child: ColorPicker(
-                            pickerColor: selectedColor,
-                            onColorChanged: (Color color) {
-                              setState(() {
-                                selectedColor = color;
-                              });
-                            },
+                ListTile(
+                  title: const Text('Pick Color'),
+                  trailing: CircleAvatar(
+                    backgroundColor: selectedColor,
+                    radius: 12,
+                  ),
+                  onTap: () {
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return AlertDialog(
+                          title: const Text('Pick a color'),
+                          content: SingleChildScrollView(
+                            child: ColorPicker(
+                              pickerColor: selectedColor,
+                              onColorChanged: (Color color) {
+                                setState(() {
+                                  selectedColor = color;
+                                });
+                              },
+                            ),
                           ),
-                        ),
-                        actions: <Widget>[
-                          TextButton(
-                            child: const Text('Got it'),
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                          ),
-                        ],
-                      );
-                    },
-                  );
-                },
-              ),
-            ],
-          ),
-        );
-      },
-    ),
-    actions: [
-      TextButton(
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
-        child: const Text('Cancel'),
-      ),
-      TextButton(
-        onPressed: () {
-          // Handle Add Category
-          String categoryName = categoryNameController.text;
-          String subtitle = subtitleController.text;
-          IconData icon = selectedIcon ?? Icons.category;
-          Color color = selectedColor;
-
-          // Create a new HiveHiveListTileModel instance
-          HiveListTileModel newCategory = HiveListTileModel(
-            title: categoryName,
-            subtitle: subtitle,
-            icon: icon,
-            bgColor: color,
+                          actions: <Widget>[
+                            TextButton(
+                              child: const Text('Got it'),
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                          ],
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            ),
           );
-
-          // Add the new category to the notifier
-          categoryNotifier.addCategory(newCategory);
-
-          // Close the dialog
-          Navigator.of(context).pop();
         },
-        child: const Text('Add'),
       ),
-    ],
-  );
-}
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: const Text('Cancel'),
+        ),
+        TextButton(
+          onPressed: () {
+            // Handle Add/Update Category
+            String title = titleController.text;
+            String subtitle = subtitleController.text;
+            IconData icon = selectedIcon ?? Icons.category;
+            Color color = selectedColor;
+
+            // Create a new HiveListTileModel instance
+            HiveListTileModel newCategory = HiveListTileModel(
+              title: title,
+              subtitle: subtitle,
+              icon: icon,
+              bgColor: color,
+            );
+
+            // Add the new category to the notifier
+            if (addFunction) {
+              categoryNotifier.addCategory(newCategory,
+                  expense: expense, income: income);
+            }
+            if (updateFunction) {
+              categoryNotifier.updateCategory(newCategory,
+                  expense: expense, income: income);
+            }
+
+            // Close the dialog
+            Navigator.of(context).pop();
+          },
+          child: addFunction ? const Text('Add') : const Text('Update'),
+        ),
+      ],
+    );
+  }
 }
