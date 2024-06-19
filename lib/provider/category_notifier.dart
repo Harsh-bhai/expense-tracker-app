@@ -5,26 +5,22 @@ import '../models/hive_listtile_model.dart'; // Import the Hive-adapted model
 class CategoryNotifier extends ChangeNotifier {
   List<dynamic> _expenseCategories = [];
   List<dynamic> _incomeCategories = [];
-  List<dynamic> _exampleCategories = [];
 
   List<dynamic> get expenseCategories => _expenseCategories;
   List<dynamic> get incomeCategories => _incomeCategories;
-  List<dynamic> get exampleCategories => _exampleCategories;
 
   // box instance
   final Box<List<dynamic>> box = Hive.box<List<dynamic>>('categoryBox');
 
   void getCategories() {
-    _expenseCategories = box.get('ExpenseCategoryArray', defaultValue: [])?.cast<dynamic>() ?? [];
-    _incomeCategories = box.get('IncomeCategoryArray', defaultValue: [])?.cast<dynamic>() ?? [];
-    _exampleCategories = box.get('ExampleCategoryArray', defaultValue: [])?.cast<dynamic>() ?? [];
+    _expenseCategories = box.get('ExpenseCategoryArray')?.cast<dynamic>() ?? [];
+    _incomeCategories = box.get('IncomeCategoryArray')?.cast<dynamic>() ?? [];
     notifyListeners();
   }
 
   void updateHive() {
     box.put('ExpenseCategoryArray', _expenseCategories);
     box.put('IncomeCategoryArray', _incomeCategories);
-    box.put('ExampleCategoryArray', _exampleCategories);
     notifyListeners();
   }
 

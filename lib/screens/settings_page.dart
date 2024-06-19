@@ -1,5 +1,6 @@
 import 'package:expense_tracker/models/listtile_model.dart';
 import 'package:expense_tracker/screens/categories_page.dart';
+import 'package:expense_tracker/screens/home_page.dart';
 import 'package:expense_tracker/screens/pie_chart.dart';
 import 'package:flutter/material.dart';
 
@@ -22,7 +23,7 @@ class SettingsPage extends StatelessWidget {
       title: 'Privacy',
       subtitle: 'Adjust your privacy settings',
       icon: Icons.lock,
-      page: const CategoryPage(),
+      page: const HomePage(),
     ),
      ListTileModel(
       title: 'Pie Chart',

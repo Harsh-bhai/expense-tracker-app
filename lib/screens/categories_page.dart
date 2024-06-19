@@ -44,30 +44,6 @@ class _CategoryPageState extends State<CategoryPage>
   @override
   Widget build(BuildContext context) {
     CategoryNotifier categoryNotifier = Provider.of<CategoryNotifier>(context);
-    //TODO - save example data in hive
-    // HiveListTileModel defaultExpenseCategory = categoryNotifier.exampleCategories[0];
-    // HiveListTileModel defaultIncomeCategory = categoryNotifier.exampleCategories[1];
-    HiveListTileModel defaultExpenseCategory = HiveListTileModel();
-    HiveListTileModel defaultIncomeCategory = HiveListTileModel();
-
-    List<HiveListTileModel> ExpenseCateogry = [
-      HiveListTileModel(
-          title: defaultExpenseCategory.title ?? 'Food',
-          subtitle:
-              defaultExpenseCategory.subtitle ?? 'Groceries, restaurants, etc.',
-          icon: defaultExpenseCategory.iconData ?? Icons.fastfood,
-          bgColor: defaultExpenseCategory.bgColor ?? Colors.red),
-      ...categoryNotifier.expenseCategories,
-    ];
-    List<HiveListTileModel> IncomeCateogry = [
-      HiveListTileModel(
-          title: defaultIncomeCategory.title ?? 'Salary',
-          subtitle:
-              defaultIncomeCategory.subtitle ?? 'Groceries, restaurants, etc.',
-          icon: defaultIncomeCategory.iconData ?? Icons.currency_rupee_sharp,
-          bgColor: defaultIncomeCategory.bgColor ?? Colors.green),
-      ...categoryNotifier.incomeCategories,
-    ];
     return Scaffold(
       appBar: AppBar(
         title: const Text('Categories'),
@@ -82,17 +58,17 @@ class _CategoryPageState extends State<CategoryPage>
       body: TabBarView(
         controller: _tabController,
         children: [
-          categoryView(ExpenseCateogry,
-              defaultCategory: defaultExpenseCategory, expense: true),
-          categoryView(IncomeCateogry,
-              defaultCategory: defaultIncomeCategory, income: true),
+          categoryView(categoryNotifier.expenseCategories,
+               expense: true),
+          categoryView(categoryNotifier.incomeCategories,
+               income: true),
         ],
       ),
     );
   }
 
-  Padding categoryView(List<HiveListTileModel> categoryList,
-      {HiveListTileModel? defaultCategory,
+  Padding categoryView(List<dynamic> categoryList,
+      {
       bool expense = false,
       bool income = false}) {
     return Padding(
@@ -123,26 +99,7 @@ class _CategoryPageState extends State<CategoryPage>
               child: CategoryBox(category: addCategory),
             );
             // default example category
-          } else if (index == 1) {
-            if (expense) {
-              return InkWell(
-                onLongPress: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => CategoryDialog(
-                      context: context,
-                      category: defaultCategory,
-                      updateFunction: true,
-                      expense: expense,
-                      income: income,
-                    ),
-                  );
-                },
-                child: CategoryBox(category: categoryList[0]),
-              );
-            }
-            // user categories
-          } else {
+          }  else {
             return InkWell(
               onLongPress: () {
                 showDialog(
@@ -159,7 +116,6 @@ class _CategoryPageState extends State<CategoryPage>
               child: CategoryBox(category: categoryList[index - 1]),
             );
           }
-          return null;
         },
       ),
     );
@@ -181,37 +137,7 @@ class _CategoryPageState extends State<CategoryPage>
         TextEditingController(text: category?.subtitle ?? '');
     IconData? selectedIcon = category?.iconData;
     Color selectedColor = category?.bgColor ?? Colors.blue;
-    HiveListTileModel exampleExpenseCategory = HiveListTileModel(
-      title: 'Food',
-      subtitle: 'Groceries, restaurants, etc.',
-      icon: Icons.fastfood,
-      bgColor: Colors.red,
-    );
-    HiveListTileModel exampleIncomeCategory = HiveListTileModel(
-      title: 'Salary',
-      subtitle: 'Groceries, restaurants, etc.',
-      icon: Icons.currency_rupee_sharp,
-      bgColor: Colors.green,
-    );
-
-    if (expense) {
-      titleController.text =
-          (category?.title ?? exampleExpenseCategory.title) ?? "";
-      subtitleController.text =
-          (category?.subtitle ?? exampleExpenseCategory.subtitle) ?? "";
-
-      selectedIcon = category?.iconData ?? exampleExpenseCategory.iconData;
-      selectedColor = category?.bgColor ?? exampleExpenseCategory.bgColor ?? Colors.red;
-    }
-    if (income) {
-      titleController.text =
-          (category?.title ?? exampleIncomeCategory.title) ?? "";
-      subtitleController.text =
-          (category?.subtitle ?? exampleIncomeCategory.subtitle) ?? "";
-
-      selectedIcon = category?.iconData ?? exampleIncomeCategory.iconData;
-      selectedColor = category?.bgColor ?? exampleIncomeCategory.bgColor ?? Colors.blue;
-    }
+ 
 
     return AlertDialog(
       title: addFunction
@@ -300,6 +226,13 @@ class _CategoryPageState extends State<CategoryPage>
         },
       ),
       actions: [
+        TextButton(
+          onPressed: () {
+            categoryNotifier.deleteCategory(category,expense: expense,income: income);
+            Navigator.of(context).pop();
+          },
+          child: const Text('Delete'),
+        ),
         TextButton(
           onPressed: () {
             Navigator.of(context).pop();
