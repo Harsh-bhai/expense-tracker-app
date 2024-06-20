@@ -13,11 +13,7 @@ class MyBottomBar extends StatelessWidget {
           label: 'Home',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.settings),
-          label: 'Settings',
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.logout),
+          icon: Icon(Icons.account_circle_rounded),
           label: 'Logout',
         ),
       ],

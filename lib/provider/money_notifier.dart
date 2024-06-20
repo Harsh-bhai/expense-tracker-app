@@ -10,45 +10,74 @@ class MoneyNotifier extends ChangeNotifier {
   DateTime? _endDate;
   final List<SmsMessage> _debitMessages = [];
   final List<SmsMessage> _creditMessages = [];
-
   DateTime? get startDate => _startDate;
   DateTime? get endDate => _endDate;
   List<SmsMessage> get debitMessages => _debitMessages;
   List<SmsMessage> get creditMessages => _creditMessages;
+  RegExp debitregex = RegExp(r"\b(debited)\s*\w+\s*a\/c\b");
+  RegExp creditregex = RegExp(r"\b(credited)\s*\w+\s*a\/c\b");
+  RegExp moneyregex = RegExp(r"rs\s*\.?\s*(\d+)(?:\.00|\s|\w+)");
+  int debitMoney = 0;
+  int creditMoney = 0;
+  bool isMessagesLoading = false;
+
 
   Future<void> getSmsMessages() async {
+    isMessagesLoading = true;
+    creditMoney = 0;
+    debitMoney = 0;
     final permission = await Permission.sms.request();
     if (permission.isGranted) {
       final messages = await _query.querySms(kinds: [SmsQueryKind.inbox]);
-      final startDate = _startDate ?? DateTime(DateTime.now().year, DateTime.now().month, 1);
+      final startDate =
+          _startDate ?? DateTime(DateTime.now().year, DateTime.now().month, 1);
       final endDate = _endDate ?? DateTime.now();
       _debitMessages.clear();
       _creditMessages.clear();
       for (final message in messages) {
         final messageDate = message.date;
         if (message.body != null &&
-            message.sender != null &&
-            (message.sender!.contains("-BOBSMS") &&
-                message.body!.toLowerCase().contains(".00 debited from a/c")) ||
+                message.sender != null &&
+                (message.sender!.contains("-BOBSMS") &&
+                    debitregex.hasMatch(message.body!.toLowerCase())) ||
             (message.sender!.contains("-BOBTXN") &&
-                message.body!.toLowerCase().contains("credited to a/c"))) {
+                creditregex.hasMatch(message.body!.toLowerCase()))) {
           if (messageDate != null &&
               messageDate.isAfter(startDate) &&
               messageDate.isBefore(endDate)) {
             if (message.sender!.contains("-BOBSMS")) {
-              _debitMessages.add(message);
+              // Try to find a match in the message body
+              Match? moneyMatch = moneyregex.firstMatch(
+                  message.body!.toLowerCase().replaceFirst(",", ""));
+              if (moneyMatch != null) {
+                // Extract and parse the amount from the match
+                int amount = int.parse(moneyMatch.group(1)!);
+                debitMoney +=
+                    amount; // Assuming debitMoney is a double for precision
+                _debitMessages.add(message);
+              }
             } else {
+              // Try to find a match in the message body
+              Match? moneyMatch = moneyregex.firstMatch(
+                  message.body!.toLowerCase().replaceFirst(",", ""));
+              // Extract and parse the amount from the match
+              int amount = int.parse(moneyMatch!.group(1)!);
+              print("money: $amount");
+              creditMoney +=
+                  amount; // Assuming creditMoney is a double for precision
               _creditMessages.add(message);
             }
           }
         }
       }
       notifyListeners();
+      isMessagesLoading = false;
     }
   }
 
   bool isStartDateLoading = false;
-  Future<void> selectStartDateWithProgressIndicator(BuildContext context, StateSetter setterState) async {
+  Future<void> selectStartDateWithProgressIndicator(
+      BuildContext context, StateSetter setterState) async {
     isStartDateLoading = true;
     final picked = await showDatePicker(
       context: context,
@@ -66,7 +95,8 @@ class MoneyNotifier extends ChangeNotifier {
   }
 
   bool isEndDateLoading = false;
-  Future<void> selectEndDateWithProgressIndicator(BuildContext context, StateSetter setterState) async {
+  Future<void> selectEndDateWithProgressIndicator(
+      BuildContext context, StateSetter setterState) async {
     isEndDateLoading = true;
     final picked = await showDatePicker(
       context: context,
@@ -83,4 +113,3 @@ class MoneyNotifier extends ChangeNotifier {
     notifyListeners();
   }
 }
-

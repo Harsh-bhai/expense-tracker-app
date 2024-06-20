@@ -2,7 +2,6 @@ import 'package:expense_tracker/models/hive_listtile_model.dart';
 import 'package:expense_tracker/provider/category_notifier.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
 import 'package:expense_tracker/screens/home_page.dart';
-import 'package:expense_tracker/screens/transactions_page.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
@@ -33,7 +32,6 @@ void main() async {
 Future<void> checkFirstLaunch() async {
   var categoryBox = Hive.box<List>('categoryBox');
   var settingsBox = Hive.box('settings');
-  print("working");
   bool isFirstLaunch = settingsBox.get('isFirstLaunch', defaultValue: true);
   print("firstLaunch: $isFirstLaunch");
 
@@ -69,6 +67,7 @@ class MyApp extends StatelessWidget {
     Provider.of<MoneyNotifier>(context, listen: false).getSmsMessages();
     return MaterialApp(
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,

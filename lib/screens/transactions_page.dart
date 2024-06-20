@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_print
 
+import 'package:expense_tracker/components/date_picker_button.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
 import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +36,6 @@ class _TransactionsState extends State<Transactions>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Transactions'),
-      
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
@@ -44,6 +44,7 @@ class _TransactionsState extends State<Transactions>
           ],
         ),
       ),
+      floatingActionButton: DatePickerButton(moneyNotifier: moneyNotifier),
       body: TabBarView(
         controller: _tabController,
         children: [

@@ -11,7 +11,7 @@ class DatePickerButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      backgroundColor: Colors.grey.shade400,
+      backgroundColor: Colors.grey.shade300,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(50),
       ),
@@ -20,7 +20,7 @@ class DatePickerButton extends StatelessWidget {
           context: context,
           builder: (context) => StatefulBuilder(
               builder: (BuildContext context, StateSetter setterState) {
-            return (moneyNotifier.isEndDateLoading || moneyNotifier.isEndDateLoading)? const CircularProgressIndicator(): AlertDialog(
+            return AlertDialog(
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.start,
