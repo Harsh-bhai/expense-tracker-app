@@ -130,8 +130,9 @@ class HomePage extends StatelessWidget {
                 return ListTile(
                   title: Text(options[index].title ?? ''),
                   subtitle: Text(options[index].subtitle ?? '',style:  TextStyle(fontSize: 13,color: Colors.grey.shade600),),
-                  trailing:
+                  leading:
                       Icon(options[index].icon, color: options[index].iconColor,size: 40,),
+                      trailing: const Icon(Icons.chevron_right_sharp,size: 30,),
                   onTap: () {
                     Navigator.push(
                       context,

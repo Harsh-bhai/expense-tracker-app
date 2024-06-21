@@ -50,7 +50,6 @@ class MoneyNotifier extends ChangeNotifier {
               Match? moneyMatch = moneyregex.firstMatch(
                   message.body!.toLowerCase().replaceFirst(",", ""));
               if (moneyMatch != null) {
-                // Extract and parse the amount from the match
                 int amount = int.parse(moneyMatch.group(1)!);
                 debitMoney +=
                     amount; // Assuming debitMoney is a double for precision
