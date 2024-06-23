@@ -1,5 +1,4 @@
 import 'package:expense_tracker/models/hive_listtile_model.dart';
-import 'package:expense_tracker/models/listtile_model.dart';
 import 'package:flutter/material.dart';
 
 class CategoryBox extends StatelessWidget {

@@ -7,6 +7,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
+  //TODO - save the selected category by the user to hive and retrive it
   WidgetsFlutterBinding.ensureInitialized();
   await Hive.initFlutter();
   Hive.registerAdapter(HiveListTileModelAdapter()); // Register the generated adapter
@@ -14,6 +15,7 @@ void main() async {
   // Open the necessary boxes before running the app
   await Hive.openBox<List>('categoryBox');
   await Hive.openBox('settings');
+  await Hive.openBox('maps');
   
   // Ensure checkFirstLaunch runs only after Hive initialization
   await checkFirstLaunch();

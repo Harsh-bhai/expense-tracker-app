@@ -20,6 +20,8 @@ class MoneyNotifier extends ChangeNotifier {
   int debitMoney = 0;
   int creditMoney = 0;
   bool isMessagesLoading = false;
+  Map<String, int> debitMap = {};
+  Map<String, int> creditMap = {};
 
 
   Future<void> getSmsMessages() async {

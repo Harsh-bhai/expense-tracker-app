@@ -5,16 +5,21 @@ import '../models/hive_listtile_model.dart'; // Import the Hive-adapted model
 class CategoryNotifier extends ChangeNotifier {
   List<dynamic> _expenseCategories = [];
   List<dynamic> _incomeCategories = [];
+  Map<int, String> _userSavedCategoryMap = {};
 
   List<dynamic> get expenseCategories => _expenseCategories;
   List<dynamic> get incomeCategories => _incomeCategories;
+  Map<int, String> get userSavedCategoryMap => _userSavedCategoryMap;
+
 
   // box instance
   final Box<List<dynamic>> box = Hive.box<List<dynamic>>('categoryBox');
+  final maps = Hive.box('maps');
 
   void getCategories() {
     _expenseCategories = box.get('ExpenseCategoryArray')?.cast<dynamic>() ?? [];
     _incomeCategories = box.get('IncomeCategoryArray')?.cast<dynamic>() ?? [];
+    _userSavedCategoryMap = maps.get('userSavedCategoryMap')?.cast<int, String>() ?? {};
     notifyListeners();
   }
 
@@ -75,4 +80,16 @@ class CategoryNotifier extends ChangeNotifier {
     }
     updateHive();
   }
+
+  void saveCategoryToMap(int id, String name) {
+    _userSavedCategoryMap[id] = name;
+    maps.put('userSavedCategoryMap', _userSavedCategoryMap);
+    notifyListeners();
+  }
+
 }
+
+// save the selected category to hive
+// save as map
+// get the selected category from hive
+// display correct cateogry at correct message

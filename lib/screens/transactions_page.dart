@@ -1,7 +1,9 @@
 // ignore_for_file: avoid_print
 
 import 'package:expense_tracker/components/date_picker_button.dart';
+import 'package:expense_tracker/components/dropdown.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -75,12 +77,14 @@ class _TransactionsState extends State<Transactions>
                   ),
                   elevation: 0,
                   child: ListTile(
-                    tileColor: Colors.grey.shade100,
+                    onLongPress: () {
+                      transactionDialog(context, message: message);
+                    },
                     leading: const CircleAvatar(
                       radius: 24.0,
-                      backgroundColor: Colors.red,
+                      backgroundColor: Colors.grey,
                       child: Icon(
-                        Icons.fastfood,
+                        Icons.question_mark,
                         color: Colors.white,
                         size: 24.0,
                       ),
@@ -94,7 +98,8 @@ class _TransactionsState extends State<Transactions>
                         ),
                         Text(
                           formatDateTime(message.date ?? DateTime.now())[1],
-                          style:  TextStyle(fontSize: 9,color: Colors.grey.shade500),
+                          style: TextStyle(
+                              fontSize: 9, color: Colors.grey.shade500),
                         ),
                       ],
                     ),
@@ -115,8 +120,68 @@ class _TransactionsState extends State<Transactions>
             },
           );
   }
-}
 
+  Future<dynamic> transactionDialog(BuildContext context,
+      {required SmsMessage message}) {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Transaction Details"),
+        content: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                message.sender ?? '',
+                style:
+                    const TextStyle(fontWeight: FontWeight.w500),
+              ),
+            ),
+            const SizedBox(height: 10,),
+            Text(message.body ?? ''),
+            const SizedBox(height: 16,),
+            const Text("Select Transaction Category",style: TextStyle(fontWeight: FontWeight.w500,),),
+            const SizedBox(height: 16,),
+            const MyDropDown(),
+            const SizedBox(height: 8,),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Date: ${formatDateTime(message.date ?? DateTime.now())[0]}",
+                
+              ),
+            ),
+            const SizedBox(height: 8,),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                "Time: ${formatDateTime(message.date ?? DateTime.now())[1]}",
+                
+              ),
+            ),
+          ],
+        ),
+        // content: const Text("Are you sure you want to delete this transaction?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: const Text("Save"),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 List<String> formatDateTime(DateTime dateTime) {
   // Format the date as "day monthname year"
