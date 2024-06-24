@@ -85,6 +85,34 @@ class CategoryNotifier extends ChangeNotifier {
     _userSavedCategoryMap[id] = name;
     maps.put('userSavedCategoryMap', _userSavedCategoryMap);
     notifyListeners();
+    print({"map: ${_userSavedCategoryMap[id]} , Id: $id , Name: $name"});
+  }
+
+  // get the category from userSavedCategoryMap by id and return the name
+
+  String getCategoryNameById(int id) {
+    return _userSavedCategoryMap[id] ?? '';
+  }
+
+  // create a method to find the category from expenseCategories or incomeCategories which matches category title
+
+  HiveListTileModel? findCategory(String name, {bool isDebit = false}) {
+    HiveListTileModel? category;
+    if(isDebit){
+      for (var element in _expenseCategories) {
+      if (element.title == name) {
+        category = element;
+      }
+    }
+    }
+    else{
+      for (var element in _incomeCategories) {
+      if (element.title == name) {
+        category = element;
+      }
+    }
+    }
+    return category;
   }
 
 }

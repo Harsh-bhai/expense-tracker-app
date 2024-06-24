@@ -2,6 +2,8 @@
 
 import 'package:expense_tracker/components/date_picker_button.dart';
 import 'package:expense_tracker/components/dropdown.dart';
+import 'package:expense_tracker/models/hive_listtile_model.dart';
+import 'package:expense_tracker/provider/category_notifier.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
@@ -61,12 +63,20 @@ class _TransactionsState extends State<Transactions>
       {bool isDebit = true}) {
     MoneyNotifier moneyNotifier =
         Provider.of<MoneyNotifier>(context, listen: false);
+    CategoryNotifier categoryNotifier =
+        Provider.of<CategoryNotifier>(context);
+
     return messages.isEmpty
         ? const Center(child: CircularProgressIndicator())
         : ListView.builder(
             itemCount: messages.length,
             itemBuilder: (context, index) {
               SmsMessage message = messages[index];
+              String currentCategoryName =
+                  categoryNotifier.getCategoryNameById(message.id ?? 0);
+              HiveListTileModel? currentCategory =
+                  categoryNotifier.findCategory(currentCategoryName,isDebit: isDebit);
+                  print("currentCategoryName: $currentCategory");
               Match? moneyMatch = moneyNotifier.moneyregex.firstMatch(
                   message.body!.toLowerCase().replaceFirst(",", ""));
               if (moneyMatch != null) {
@@ -78,13 +88,14 @@ class _TransactionsState extends State<Transactions>
                   elevation: 0,
                   child: ListTile(
                     onLongPress: () {
-                      transactionDialog(context, message: message);
+                      transactionDialog(context,
+                          message: message, isDebit: isDebit);
                     },
-                    leading: const CircleAvatar(
+                    leading:  CircleAvatar(
                       radius: 24.0,
-                      backgroundColor: Colors.grey,
+                      backgroundColor: currentCategory?.bgColor,
                       child: Icon(
-                        Icons.question_mark,
+                         currentCategory?.iconData ?? Icons.question_mark,
                         color: Colors.white,
                         size: 24.0,
                       ),
@@ -122,7 +133,7 @@ class _TransactionsState extends State<Transactions>
   }
 
   Future<dynamic> transactionDialog(BuildContext context,
-      {required SmsMessage message}) {
+      {required SmsMessage message, required bool isDebit}) {
     return showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -135,30 +146,45 @@ class _TransactionsState extends State<Transactions>
               alignment: Alignment.centerLeft,
               child: Text(
                 message.sender ?? '',
-                style:
-                    const TextStyle(fontWeight: FontWeight.w500),
+                style: const TextStyle(fontWeight: FontWeight.w500),
               ),
             ),
-            const SizedBox(height: 10,),
+            const SizedBox(
+              height: 10,
+            ),
             Text(message.body ?? ''),
-            const SizedBox(height: 16,),
-            const Text("Select Transaction Category",style: TextStyle(fontWeight: FontWeight.w500,),),
-            const SizedBox(height: 16,),
-            const MyDropDown(),
-            const SizedBox(height: 8,),
+            const SizedBox(
+              height: 16,
+            ),
+            const Text(
+              "Select Transaction Category",
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(
+              height: 16,
+            ),
+            MyDropDown(
+              isDebit: isDebit,
+              message: message,
+            ),
+            const SizedBox(
+              height: 8,
+            ),
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 "Date: ${formatDateTime(message.date ?? DateTime.now())[0]}",
-                
               ),
             ),
-            const SizedBox(height: 8,),
+            const SizedBox(
+              height: 8,
+            ),
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 "Time: ${formatDateTime(message.date ?? DateTime.now())[1]}",
-                
               ),
             ),
           ],

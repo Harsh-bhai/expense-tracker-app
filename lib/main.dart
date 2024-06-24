@@ -19,6 +19,7 @@ void main() async {
   
   // Ensure checkFirstLaunch runs only after Hive initialization
   await checkFirstLaunch();
+  
 
   runApp(
     MultiProvider(
@@ -67,6 +68,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Provider.of<MoneyNotifier>(context, listen: false).getSmsMessages();
+    Provider.of<CategoryNotifier>(context, listen: false).getCategories();
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
