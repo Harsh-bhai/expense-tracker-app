@@ -93,7 +93,7 @@ class _TransactionsState extends State<Transactions>
                     },
                     leading:  CircleAvatar(
                       radius: 24.0,
-                      backgroundColor: currentCategory?.bgColor,
+                      backgroundColor: currentCategory?.bgColor ?? Colors.grey.shade300,
                       child: Icon(
                          currentCategory?.iconData ?? Icons.question_mark,
                         color: Colors.white,
@@ -154,7 +154,7 @@ class _TransactionsState extends State<Transactions>
             ),
             Text(message.body ?? ''),
             const SizedBox(
-              height: 16,
+              height: 20,
             ),
             const Text(
               "Select Transaction Category",
@@ -163,7 +163,7 @@ class _TransactionsState extends State<Transactions>
               ),
             ),
             const SizedBox(
-              height: 16,
+              height: 20,
             ),
             MyDropDown(
               isDebit: isDebit,

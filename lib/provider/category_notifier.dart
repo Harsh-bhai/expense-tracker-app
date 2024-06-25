@@ -1,16 +1,28 @@
+import 'package:expense_tracker/models/listtile_model.dart';
+import 'package:expense_tracker/provider/money_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:hive/hive.dart';
+import 'package:provider/provider.dart';
 import '../models/hive_listtile_model.dart'; // Import the Hive-adapted model
 
 class CategoryNotifier extends ChangeNotifier {
   List<dynamic> _expenseCategories = [];
   List<dynamic> _incomeCategories = [];
+  // saves selected category name with message id
   Map<int, String> _userSavedCategoryMap = {};
+  // saves category name with list of message ids
+  final Map<String, List<int>> _categoryMapExpense = {};
+  final Map<String, List<int>> _categoryMapIncome = {};
 
   List<dynamic> get expenseCategories => _expenseCategories;
   List<dynamic> get incomeCategories => _incomeCategories;
   Map<int, String> get userSavedCategoryMap => _userSavedCategoryMap;
+  Map<String, List<int>> get categoryMapExpense => _categoryMapExpense;
+  Map<String, List<int>> get categoryMapIncome => _categoryMapIncome;
 
+  
 
   // box instance
   final Box<List<dynamic>> box = Hive.box<List<dynamic>>('categoryBox');
@@ -20,7 +32,9 @@ class CategoryNotifier extends ChangeNotifier {
     _expenseCategories = box.get('ExpenseCategoryArray')?.cast<dynamic>() ?? [];
     _incomeCategories = box.get('IncomeCategoryArray')?.cast<dynamic>() ?? [];
     _userSavedCategoryMap = maps.get('userSavedCategoryMap')?.cast<int, String>() ?? {};
+    SchedulerBinding.instance.addPostFrameCallback((_) {
     notifyListeners();
+    });
   }
 
   void updateHive() {
@@ -81,6 +95,8 @@ class CategoryNotifier extends ChangeNotifier {
     updateHive();
   }
 
+
+  // create a method to save category to userSavedCategoryMap
   void saveCategoryToMap(int id, String name) {
     _userSavedCategoryMap[id] = name;
     maps.put('userSavedCategoryMap', _userSavedCategoryMap);
@@ -115,9 +131,41 @@ class CategoryNotifier extends ChangeNotifier {
     return category;
   }
 
+
+// {category:[messageids]}
+
+  void getCategoryMap(BuildContext context) {
+    _categoryMapExpense.clear();
+
+    // initializing the categoryMap with all the categories
+    for (var category in _expenseCategories) {
+      _categoryMapExpense[category.title] = [];
+    }
+
+    for (var category in _incomeCategories) {
+      _categoryMapIncome[category.title] = [];
+    }
+
+    // filling the categoryMap with messagesIds using userSavedCategoryMap
+    _userSavedCategoryMap.forEach((key, value) {
+      if(_categoryMapExpense.containsKey(value)){
+        _categoryMapExpense[value]!.add(key);
+      }
+
+    _userSavedCategoryMap.forEach((key, value) {
+      if(_categoryMapIncome.containsKey(value)){
+        _categoryMapIncome[value]!.add(key);
+      }
+    });
+    });
+
+    notifyListeners();
+
+  }
+
+
 }
 
-// save the selected category to hive
-// save as map
-// get the selected category from hive
-// display correct cateogry at correct message
+// i can get smsMessage from id
+// i can get category from id
+// i can extract money from smsMessage

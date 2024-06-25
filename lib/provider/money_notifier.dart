@@ -20,8 +20,6 @@ class MoneyNotifier extends ChangeNotifier {
   int debitMoney = 0;
   int creditMoney = 0;
   bool isMessagesLoading = false;
-  Map<String, int> debitMap = {};
-  Map<String, int> creditMap = {};
 
 
   Future<void> getSmsMessages() async {
@@ -113,4 +111,23 @@ class MoneyNotifier extends ChangeNotifier {
     isEndDateLoading = false;
     notifyListeners();
   }
+
+// crete a method to get debit single smsmessage by message id
+
+  SmsMessage? getDebitMessageById(int id) {
+    return _debitMessages.firstWhere((message) => message.id == id);
+  }
+
+  int getMoneyFromRegex(RegExp regex, SmsMessage message) {
+    int amount=0;
+    Match? moneyMatch = regex.firstMatch(message.body!.toLowerCase().replaceFirst(",", ""));
+    // Extract and parse the amount from the match
+    if (moneyMatch != null) {
+    amount = int.parse(moneyMatch.group(1)!);
+    }
+    return amount;
+  }
+
+  
+  
 }
