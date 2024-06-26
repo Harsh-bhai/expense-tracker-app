@@ -21,80 +21,105 @@ class _AnalysisPageState extends State<AnalysisPage> {
   @override
   Widget build(BuildContext context) {
     CategoryNotifier categoryNotifier = Provider.of<CategoryNotifier>(context);
-    List<HiveListTileModel> categoryArray = [...categoryNotifier.expenseCategories,
-    //FIXME - add unknown category
-    // HiveListTileModel(
-    //   title: 'Unknown',
-    //   bgColor: Colors.grey.shade300,
-    //   icon: Icons.question_mark,
-    // )
+    List<HiveListTileModel> categoryArray = [
+      ...categoryNotifier.expenseCategories,
+      HiveListTileModel(
+        title: 'Unknown',
+        bgColor: Colors.grey.shade300,
+        icon: Icons.question_mark,
+      )
     ];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Analysis'),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          AspectRatio(
-            aspectRatio: 1.3,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: PieChart(
-                PieChartData(
-                  sections: _showingSections(
-                      context, _touchedIndex), // Pass the touched index
-                  centerSpaceRadius: 40,
-                  sectionsSpace: 1,
-                  borderData: FlBorderData(
-                    show: true,
-                    border: Border.all(color: Colors.black, width: 1),
-                  ),
-                  pieTouchData: PieTouchData(
-                    touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                      if (pieTouchResponse != null &&
-                          pieTouchResponse.touchedSection != null) {
-                        setState(() {
-                          _touchedIndex = pieTouchResponse.touchedSection!
-                              .touchedSectionIndex; // Update touched index
-                        });
-                      } else {
-                        setState(() {
-                          _touchedIndex =
-                              -1; // Reset touched index if no section is touched
-                        });
-                      }
-                    },
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: 16.0),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade200,
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.start,
+            mainAxisSize:
+                MainAxisSize.min, // Ensures the column takes the minimum height
+            children: [
+              AspectRatio(
+                aspectRatio: 1.3,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: PieChart(
+                    PieChartData(
+                      sections: _showingSections(
+                          context, _touchedIndex), // Pass the touched index
+                      centerSpaceRadius: 40,
+                      sectionsSpace: 1,
+                      borderData: FlBorderData(
+                        show: true,
+                        border: Border.all(color: Colors.black, width: 1),
+                      ),
+                      pieTouchData: PieTouchData(
+                        touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                          if (pieTouchResponse != null &&
+                              pieTouchResponse.touchedSection != null) {
+                            setState(() {
+                              _touchedIndex = pieTouchResponse.touchedSection!
+                                  .touchedSectionIndex; // Update touched index
+                            });
+                          } else {
+                            setState(() {
+                              _touchedIndex =
+                                  -1; // Reset touched index if no section is touched
+                            });
+                          }
+                        },
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
+              // Category labels
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: ListView.builder(
+                  shrinkWrap:
+                      true, // Ensures the ListView takes only the necessary height
+                  physics:
+                      const NeverScrollableScrollPhysics(), // Disables scrolling
+                  itemCount: categoryArray.length,
+                  itemBuilder: (context, index) {
+                    final category = categoryArray[index];
+                    bool isHighlighted = _touchedIndex == index;
 
-          // category labels
-            Expanded(
-            child: Wrap(
-              children: List.generate(
-                categoryArray.length,
-                (index) {
-                  final category = categoryNotifier.expenseCategories[index];
-                  bool isHighlighted = _touchedIndex == index;
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: Indicator(
-                      color:  category.bgColor,
-                      icon: category.iconData,
-                      text: category.title,
-                      showBorder: isHighlighted,
-                    ),
-                  );
-                },
+                    return ListTile(
+                      title: Text(category.title ?? "Unknown"),
+                      selected: isHighlighted,
+                      selectedTileColor: isHighlighted ? category.bgColor?.withOpacity(0.3) : Colors.transparent,
+                      leading: CircleAvatar(
+                        radius: 24.0,
+                        backgroundColor: category.bgColor,
+                        child: Icon(
+                          category.iconData,
+                          color: Colors.white,
+                          size: 24.0,
+                        ),
+                      ),
+                      
+                      // color: category.bgColor ?? Colors.grey.shade300,
+                      // icon: category.iconData ?? Icons.question_mark,
+                      // text: category.title ?? 'Unknown',
+                      // showBorder: isHighlighted,
+                    );
+                  },
+                ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
