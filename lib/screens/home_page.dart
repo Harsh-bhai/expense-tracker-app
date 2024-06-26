@@ -8,7 +8,6 @@ import 'package:expense_tracker/screens/budget_page.dart';
 import 'package:expense_tracker/screens/categories_page.dart';
 import 'package:expense_tracker/screens/settings_page.dart';
 import 'package:expense_tracker/screens/transactions_page.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

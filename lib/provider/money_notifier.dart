@@ -61,7 +61,6 @@ class MoneyNotifier extends ChangeNotifier {
                   message.body!.toLowerCase().replaceFirst(",", ""));
               // Extract and parse the amount from the match
               int amount = int.parse(moneyMatch!.group(1)!);
-              print("money: $amount");
               creditMoney +=
                   amount; // Assuming creditMoney is a double for precision
               _creditMessages.add(message);

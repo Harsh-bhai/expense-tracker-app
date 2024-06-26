@@ -1,8 +1,5 @@
-// ignore_for_file: non_constant_identifier_names
-
 import 'package:expense_tracker/components/cateogory_box.dart';
 import 'package:expense_tracker/models/hive_listtile_model.dart';
-import 'package:expense_tracker/models/listtile_model.dart';
 import 'package:expense_tracker/provider/category_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -88,7 +85,7 @@ class _CategoryPageState extends State<CategoryPage>
               onTap: () {
                 showDialog(
                   context: context,
-                  builder: (context) => CategoryDialog(
+                  builder: (context) => categoryDialog(
                     context: context,
                     addFunction: true,
                     expense: expense,
@@ -104,7 +101,7 @@ class _CategoryPageState extends State<CategoryPage>
               onLongPress: () {
                 showDialog(
                   context: context,
-                  builder: (context) => CategoryDialog(
+                  builder: (context) => categoryDialog(
                     context: context,
                     category: categoryList[index - 1],
                     updateFunction: true,
@@ -121,7 +118,7 @@ class _CategoryPageState extends State<CategoryPage>
     );
   }
 
-  AlertDialog CategoryDialog({
+  AlertDialog categoryDialog({
     required BuildContext context,
     HiveListTileModel? category,
     bool addFunction = false,

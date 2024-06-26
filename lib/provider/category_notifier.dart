@@ -1,10 +1,6 @@
-import 'package:expense_tracker/models/listtile_model.dart';
-import 'package:expense_tracker/provider/money_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:hive/hive.dart';
-import 'package:provider/provider.dart';
 import '../models/hive_listtile_model.dart'; // Import the Hive-adapted model
 
 class CategoryNotifier extends ChangeNotifier {
@@ -101,7 +97,6 @@ class CategoryNotifier extends ChangeNotifier {
     _userSavedCategoryMap[id] = name;
     maps.put('userSavedCategoryMap', _userSavedCategoryMap);
     notifyListeners();
-    print({"map: ${_userSavedCategoryMap[id]} , Id: $id , Name: $name"});
   }
 
   // get the category from userSavedCategoryMap by id and return the name

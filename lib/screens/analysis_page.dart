@@ -1,10 +1,8 @@
-import 'package:expense_tracker/components/indicator.dart';
 import 'package:expense_tracker/models/hive_listtile_model.dart';
 import 'package:expense_tracker/provider/category_notifier.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:provider/provider.dart';
 
