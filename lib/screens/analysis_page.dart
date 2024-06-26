@@ -17,6 +17,9 @@ class AnalysisPage extends StatefulWidget {
 
 class _AnalysisPageState extends State<AnalysisPage> {
   int _touchedIndex = -1; // State variable to track the touched section index
+  Map<String, int> categoryWiseMoney = {};
+  int totalMoney = 0;
+  int knownCategoryExpense = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -34,91 +37,128 @@ class _AnalysisPageState extends State<AnalysisPage> {
       appBar: AppBar(
         title: const Text('Analysis'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: Container(
-          padding: const EdgeInsets.symmetric(vertical: 16.0),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade200,
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.start,
-            mainAxisSize:
-                MainAxisSize.min, // Ensures the column takes the minimum height
-            children: [
-              AspectRatio(
-                aspectRatio: 1.3,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: PieChart(
-                    PieChartData(
-                      sections: _showingSections(
-                          context, _touchedIndex), // Pass the touched index
-                      centerSpaceRadius: 40,
-                      sectionsSpace: 1,
-                      borderData: FlBorderData(
-                        show: true,
-                        border: Border.all(color: Colors.black, width: 1),
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        scrollDirection: Axis.vertical,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 26.0, vertical: 8.0),
+              child: Text("Category-Wise Analysis",style: TextStyle(
+                fontSize: 20,fontWeight: FontWeight.w700,
+              ),),
+            ),
+            Card(
+              shadowColor: Colors.grey,
+              elevation: 10,
+              margin: const EdgeInsets.all(16.0),
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 24.0),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(12.0),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  mainAxisSize:
+                      MainAxisSize.min, // Ensures the column takes the minimum height
+                  children: [
+                    const Text(
+                      "This Month",
+                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                    ),
+                    AspectRatio(
+                      aspectRatio: 1.3,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: PieChart(
+                          PieChartData(
+                            sections: _showingSections(
+                                context, _touchedIndex), // Pass the touched index
+                            centerSpaceRadius: 30,
+                            sectionsSpace: 1,
+                            borderData: FlBorderData(
+                              show: true,
+                              border: Border.all(color: Colors.black, width: 1),
+                            ),
+                            pieTouchData: PieTouchData(
+                              touchCallback: (FlTouchEvent event, pieTouchResponse) {
+                                if (pieTouchResponse != null &&
+                                    pieTouchResponse.touchedSection != null) {
+                                  setState(() {
+                                    _touchedIndex = pieTouchResponse.touchedSection!
+                                        .touchedSectionIndex; // Update touched index
+                                  });
+                                } else {
+                                  setState(() {
+                                    _touchedIndex =
+                                        -1; // Reset touched index if no section is touched
+                                  });
+                                }
+                              },
+                            ),
+                          ),
+                        ),
                       ),
-                      pieTouchData: PieTouchData(
-                        touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                          if (pieTouchResponse != null &&
-                              pieTouchResponse.touchedSection != null) {
-                            setState(() {
-                              _touchedIndex = pieTouchResponse.touchedSection!
-                                  .touchedSectionIndex; // Update touched index
-                            });
-                          } else {
-                            setState(() {
-                              _touchedIndex =
-                                  -1; // Reset touched index if no section is touched
-                            });
-                          }
+                    ),
+                    // Category labels
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: ListView.builder(
+                        shrinkWrap:
+                            true, // Ensures the ListView takes only the necessary height
+                        physics:
+                            const NeverScrollableScrollPhysics(), // Disables scrolling
+                        itemCount: categoryArray.length,
+                        itemBuilder: (context, index) {
+                          final category = categoryArray[index];
+                          bool isHighlighted = _touchedIndex == index;
+            
+                          return Container(
+                            decoration: BoxDecoration(
+                              color: isHighlighted
+                                  ? category.bgColor?.withOpacity(0.3) ??
+                                      Colors.grey.shade300.withOpacity(0.3)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(40.0),
+                              border: Border.all(
+                                color: isHighlighted
+                                    ? category.bgColor?.withOpacity(1) ??
+                                        Colors.grey.shade300.withOpacity(0.3)
+                                    : Colors.transparent,
+                                width: 2.0,
+                              ),
+                            ),
+                            child: ListTile(
+                              title: Text(category.title ?? "Unknown"),
+                              trailing: Text(
+                                "₹${categoryWiseMoney[category.title] ?? totalMoney - knownCategoryExpense}",
+                                style: const TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.green,
+                                    fontWeight: FontWeight.bold),
+                              ),
+                              leading: CircleAvatar(
+                                radius: 24.0,
+                                backgroundColor: category.bgColor,
+                                child: Icon(
+                                  category.iconData,
+                                  color: Colors.white,
+                                  size: 24.0,
+                                ),
+                              ),
+                            ),
+                          );
                         },
                       ),
                     ),
-                  ),
+                  ],
                 ),
               ),
-              // Category labels
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0),
-                child: ListView.builder(
-                  shrinkWrap:
-                      true, // Ensures the ListView takes only the necessary height
-                  physics:
-                      const NeverScrollableScrollPhysics(), // Disables scrolling
-                  itemCount: categoryArray.length,
-                  itemBuilder: (context, index) {
-                    final category = categoryArray[index];
-                    bool isHighlighted = _touchedIndex == index;
-
-                    return ListTile(
-                      title: Text(category.title ?? "Unknown"),
-                      selected: isHighlighted,
-                      selectedTileColor: isHighlighted ? category.bgColor?.withOpacity(0.3) : Colors.transparent,
-                      leading: CircleAvatar(
-                        radius: 24.0,
-                        backgroundColor: category.bgColor,
-                        child: Icon(
-                          category.iconData,
-                          color: Colors.white,
-                          size: 24.0,
-                        ),
-                      ),
-                      
-                      // color: category.bgColor ?? Colors.grey.shade300,
-                      // icon: category.iconData ?? Icons.question_mark,
-                      // text: category.title ?? 'Unknown',
-                      // showBorder: isHighlighted,
-                    );
-                  },
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -128,10 +168,9 @@ class _AnalysisPageState extends State<AnalysisPage> {
       BuildContext context, int? touchedIndex) {
     CategoryNotifier categoryNotifier = Provider.of<CategoryNotifier>(context);
     MoneyNotifier moneyNotifier = Provider.of<MoneyNotifier>(context);
-    int totalMoney = moneyNotifier.debitMoney;
-    int currentTotalExpense = 0;
+    totalMoney = moneyNotifier.debitMoney;
+    knownCategoryExpense = 0;
 
-    Map<String, int> categoryWiseMoney = {};
     categoryWiseMapInit(categoryNotifier, categoryWiseMoney);
     categoryNotifier.getCategoryMap(context);
     List<PieChartSectionData> sections = [];
@@ -147,7 +186,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
             moneyNotifier.getMoneyFromRegex(moneyNotifier.moneyregex, message!);
         categoryWiseMoney[categoryName?.title ?? ""] =
             categoryWiseMoney[categoryName?.title ?? ""]! + amount;
-        currentTotalExpense = currentTotalExpense + amount;
+        knownCategoryExpense = knownCategoryExpense + amount;
       }
       double percentage =
           (categoryWiseMoney[categoryName?.title ?? ""]! / totalMoney) * 100;
@@ -176,7 +215,8 @@ class _AnalysisPageState extends State<AnalysisPage> {
       index++;
     });
 
-    double percentage = ((totalMoney - currentTotalExpense) / totalMoney) * 100;
+    double percentage =
+        ((totalMoney - knownCategoryExpense) / totalMoney) * 100;
     PieChartSectionData unknownMoneySection = PieChartSectionData(
       color: Colors.grey.shade300,
       value: percentage,
