@@ -14,7 +14,7 @@ class MoneyNotifier extends ChangeNotifier {
   DateTime? get endDate => _endDate;
   List<SmsMessage> get debitMessages => _debitMessages;
   List<SmsMessage> get creditMessages => _creditMessages;
-  RegExp debitregex = RegExp(r"\b(debited)\s*\w+\s*a\/c\b");
+  RegExp debitregex = RegExp(r"\b(debited | transferred)\s*\w+\s*a\/c\b");
   RegExp creditregex = RegExp(r"\b(credited)\s*\w+\s*a\/c\b");
   RegExp moneyregex = RegExp(r"rs\s*\.?\s*(\d+)(?:\.00|\s|\w+)");
   int debitMoney = 0;
@@ -39,14 +39,14 @@ class MoneyNotifier extends ChangeNotifier {
         final messageDate = message.date;
         if (message.body != null &&
                 message.sender != null &&
-                (message.sender!.contains("-BOBSMS") &&
+                ((message.sender!.contains("-BOBSMS") || message.sender!.contains("-BOBTXN")) &&
                     debitregex.hasMatch(message.body!.toLowerCase())) ||
             (message.sender!.contains("-BOBTXN") &&
                 creditregex.hasMatch(message.body!.toLowerCase()))) {
           if (messageDate != null &&
               messageDate.isAfter(startDate) &&
               messageDate.isBefore(endDate)) {
-            if (message.sender!.contains("-BOBSMS")) {
+            if (message.sender!.contains("-BOBSMS") || message.sender!.contains("-BOBTXN")) {
               // Try to find a match in the message body
               Match? moneyMatch = moneyregex.firstMatch(
                   message.body!.toLowerCase().replaceFirst(",", ""));
@@ -56,7 +56,8 @@ class MoneyNotifier extends ChangeNotifier {
                     amount; // Assuming debitMoney is a double for precision
                 _debitMessages.add(message);
               }
-            } else {
+            } if (message.sender!.contains("-BOBTXN") &&
+                    creditregex.hasMatch(message.body!.toLowerCase())) {
               // Try to find a match in the message body
               Match? moneyMatch = moneyregex.firstMatch(
                   message.body!.toLowerCase().replaceFirst(",", ""));
