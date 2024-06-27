@@ -1,6 +1,6 @@
-import 'package:expense_tracker/screens/account_page.dart';
-import 'package:expense_tracker/screens/home_page.dart';
+import 'package:expense_tracker/provider/common_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class MyBottomBar extends StatefulWidget {
   const MyBottomBar({super.key});
@@ -10,35 +10,66 @@ class MyBottomBar extends StatefulWidget {
 }
 
 class _MyBottomBarState extends State<MyBottomBar> {
-  int _selectedIndex = 0;
 
-  void _onItemTapped(int index) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => _selectedIndex == 0
-          ? const HomePage()
-          : const AccountPage()),
-    );
+  void _onItemTapped(int index,CommonNotifier commonNotifier) {
+    // switch (index) {
+    //   case 0:
+    //     Navigator.pushReplacement(
+    //       context,
+    //       MaterialPageRoute(builder: (context) => const HomePage()),
+    //     );
+    //     break;
+    //   case 1:
+    //     Navigator.pushReplacement(
+    //       context,
+    //       MaterialPageRoute(builder: (context) => const AnalysisPage()),
+    //     );
+    //     break;
+    //   case 2:
+    //     Navigator.pushReplacement(
+    //       context,
+    //       MaterialPageRoute(builder: (context) => const CategoryPage()),
+    //     );
+    //     break;
+    //   case 3:
+    //     Navigator.pushReplacement(
+    //       context,
+    //       MaterialPageRoute(builder: (context) => const AccountPage()),
+    //     );
+    //     break;
+    // }
     setState(() {
-      _selectedIndex = index;
+      commonNotifier.selectedIndex = index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
+     CommonNotifier commonNotifier = Provider.of<CommonNotifier>(context,listen: false);
     return BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle_rounded),
-            label: 'Account',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.cyan,
-        onTap: _onItemTapped);
+      type: BottomNavigationBarType.fixed,
+      items: const <BottomNavigationBarItem>[
+        BottomNavigationBarItem(
+          icon: Icon(Icons.home),
+          label: 'Home',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.auto_graph),
+          label: 'Analysis',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.category_rounded),
+          label: 'Categories',
+        ),
+        BottomNavigationBarItem(
+          icon: Icon(Icons.account_circle_rounded),
+          label: 'Account',
+        ),
+      ],
+      currentIndex: commonNotifier.selectedIndex,
+      selectedItemColor: Colors.cyan,
+      unselectedItemColor: Colors.grey,
+      onTap: (index) => _onItemTapped(index,commonNotifier),
+    );
   }
 }

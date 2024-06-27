@@ -1,7 +1,8 @@
 import 'package:expense_tracker/models/hive_listtile_model.dart';
 import 'package:expense_tracker/provider/category_notifier.dart';
+import 'package:expense_tracker/provider/common_notifier.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
-import 'package:expense_tracker/screens/home_page.dart';
+import 'package:expense_tracker/screens/landing_page.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
@@ -25,6 +26,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => MoneyNotifier()),
         ChangeNotifierProvider(create: (_) => CategoryNotifier()),
+        ChangeNotifierProvider(create: (_) => CommonNotifier()),
       ],
       child: const MyApp(),
     ),
@@ -35,7 +37,6 @@ Future<void> checkFirstLaunch() async {
   var categoryBox = Hive.box<List>('categoryBox');
   var settingsBox = Hive.box('settings');
   bool isFirstLaunch = settingsBox.get('isFirstLaunch', defaultValue: true);
-  print("firstLaunch: $isFirstLaunch");
 
   if (isFirstLaunch) {
     // Add default category
@@ -75,7 +76,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const HomePage(),
+      home: const LandingPage(),
     );
   }
 }

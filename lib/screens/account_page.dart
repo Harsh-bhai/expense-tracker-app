@@ -1,3 +1,4 @@
+import 'package:expense_tracker/components/mybottom_bar.dart';
 import 'package:flutter/material.dart';
 
 class AccountPage extends StatelessWidget {

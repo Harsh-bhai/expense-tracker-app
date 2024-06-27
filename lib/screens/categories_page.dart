@@ -1,4 +1,5 @@
 import 'package:expense_tracker/components/cateogory_box.dart';
+import 'package:expense_tracker/components/mybottom_bar.dart';
 import 'package:expense_tracker/models/hive_listtile_model.dart';
 import 'package:expense_tracker/provider/category_notifier.dart';
 import 'package:flutter/material.dart';

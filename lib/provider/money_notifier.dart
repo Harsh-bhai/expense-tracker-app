@@ -22,6 +22,7 @@ class MoneyNotifier extends ChangeNotifier {
   bool isMessagesLoading = false;
 
 
+
   Future<void> getSmsMessages() async {
     isMessagesLoading = true;
     creditMoney = 0;

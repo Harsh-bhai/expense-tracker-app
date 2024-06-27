@@ -1,11 +1,9 @@
-import 'package:expense_tracker/components/date_picker_button.dart';
 import 'package:expense_tracker/components/money_bubble.dart';
-import 'package:expense_tracker/components/mybottom_bar.dart';
 import 'package:expense_tracker/models/listtile_model.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
-import 'package:expense_tracker/screens/analysis_page.dart';
+import 'package:expense_tracker/screens/about_page.dart';
 import 'package:expense_tracker/screens/budget_page.dart';
-import 'package:expense_tracker/screens/categories_page.dart';
+import 'package:expense_tracker/screens/notifications_page.dart';
 import 'package:expense_tracker/screens/settings_page.dart';
 import 'package:expense_tracker/screens/transactions_page.dart';
 import 'package:flutter/material.dart';
@@ -24,11 +22,11 @@ class HomePage extends StatelessWidget {
           page: const Transactions(),
           iconColor: Colors.orange),
       ListTileModel(
-          title: 'Analysis',
-          subtitle: 'View your spending summary',
-          icon: Icons.auto_graph,
-          page: const AnalysisPage(),
-          iconColor: Colors.blue),
+          title: 'Reminder',
+          subtitle: 'Set Reminder to add category to transactions',
+          icon: Icons.notification_add,
+          page: const NotificationsPage(),
+          iconColor: Colors.yellow.shade600),
       ListTileModel(
           title: 'Set Budget',
           subtitle: 'Set budget limit on categories',
@@ -36,11 +34,11 @@ class HomePage extends StatelessWidget {
           page: const BudgetPage(),
           iconColor: Colors.green),
       ListTileModel(
-          title: 'Categories',
-          subtitle: 'Manage your Expense and Income categories',
-          icon: Icons.category,
-          page: const CategoryPage(),
-          iconColor: Colors.yellow),
+          title: 'About Us',
+          subtitle: 'Learn more about us',
+          icon: Icons.info,
+          page: const AboutPage(),
+          iconColor: Colors.blue),
     ];
     MoneyNotifier moneyNotifier = Provider.of<MoneyNotifier>(context);
     return Scaffold(
@@ -67,9 +65,6 @@ class HomePage extends StatelessWidget {
           )
         ],
       ),
-      bottomNavigationBar: const MyBottomBar(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: DatePickerButton(moneyNotifier: moneyNotifier),
       body: Column(
         children: [
           const Padding(
@@ -86,7 +81,7 @@ class HomePage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               MoneyBubble(
-                color: Colors.red,
+                color: Colors.orange.shade700,
                 icon: Icons.arrow_upward,
                 title: "Spending",
                 money: moneyNotifier.debitMoney,
@@ -102,7 +97,7 @@ class HomePage extends StatelessWidget {
           const SizedBox(height: 30),
           Container(
             decoration: BoxDecoration(
-              color: Colors.grey.shade300,
+              color: Colors.cyan.shade100.withOpacity(.5),
               borderRadius: BorderRadius.circular(30.0),
             ),
             padding: const EdgeInsets.all(16.0),
