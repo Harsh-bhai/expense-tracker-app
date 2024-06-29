@@ -10,7 +10,7 @@ class BudgetPage extends StatelessWidget {
         title: const Text('Budget'),
       ),
       body: const Center(
-        child: Text('Budget Page'),
+        child: Text('Comming Soon...'), 
       ),
     );
   }

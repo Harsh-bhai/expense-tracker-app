@@ -1,5 +1,4 @@
 import 'package:expense_tracker/components/cateogory_box.dart';
-import 'package:expense_tracker/components/mybottom_bar.dart';
 import 'package:expense_tracker/models/hive_listtile_model.dart';
 import 'package:expense_tracker/provider/category_notifier.dart';
 import 'package:flutter/material.dart';
@@ -72,6 +71,8 @@ class _CategoryPageState extends State<CategoryPage>
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: GridView.builder(
+        physics: const BouncingScrollPhysics(),
+        scrollDirection: Axis.vertical,
         itemCount: categoryList.length + 1,
         gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
           crossAxisCount: 2,
@@ -224,19 +225,13 @@ class _CategoryPageState extends State<CategoryPage>
         },
       ),
       actions: [
-        TextButton(
+        !addFunction ? TextButton(
           onPressed: () {
             categoryNotifier.deleteCategory(category,expense: expense,income: income);
             Navigator.of(context).pop();
           },
           child: const Text('Delete'),
-        ),
-        TextButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-          child: const Text('Cancel'),
-        ),
+        ) : Container(),
         TextButton(
           onPressed: () {
             // Handle Add/Update Category

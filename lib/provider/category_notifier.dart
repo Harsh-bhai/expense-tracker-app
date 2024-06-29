@@ -6,8 +6,10 @@ import '../models/hive_listtile_model.dart'; // Import the Hive-adapted model
 class CategoryNotifier extends ChangeNotifier {
   List<dynamic> _expenseCategories = [];
   List<dynamic> _incomeCategories = [];
+
   // saves selected category name with message id
   Map<int, String> _userSavedCategoryMap = {};
+  
   // saves category name with list of message ids
   final Map<String, List<int>> _categoryMapExpense = {};
   final Map<String, List<int>> _categoryMapIncome = {};
@@ -55,14 +57,14 @@ class CategoryNotifier extends ChangeNotifier {
       {bool expense = false, bool income = false}) {
     if (expense) {
       int index = _expenseCategories.indexWhere(
-          (category) => category.categoryName == updatedCategory.categoryName);
+          (category) => category.title == updatedCategory.title);
       if (index != -1) {
         _expenseCategories[index] = updatedCategory;
       }
     }
     if (income) {
       int index = _incomeCategories.indexWhere(
-          (category) => category.categoryName == updatedCategory.categoryName);
+          (category) => category.title == updatedCategory.title);
       if (index != -1) {
         _incomeCategories[index] = updatedCategory;
       }
@@ -92,7 +94,7 @@ class CategoryNotifier extends ChangeNotifier {
   }
 
 
-  // create a method to save category to userSavedCategoryMap
+  // save category to userSavedCategoryMap
   void saveCategoryToMap(int id, String name) {
     _userSavedCategoryMap[id] = name;
     maps.put('userSavedCategoryMap', _userSavedCategoryMap);
@@ -105,7 +107,7 @@ class CategoryNotifier extends ChangeNotifier {
     return _userSavedCategoryMap[id] ?? '';
   }
 
-  // create a method to find the category from expenseCategories or incomeCategories which matches category title
+  // find the category from expenseCategories or incomeCategories which matches category title
 
   HiveListTileModel? findCategory(String name, {bool isDebit = false}) {
     HiveListTileModel? category;

@@ -1,7 +1,8 @@
-import 'package:expense_tracker/components/mybottom_bar.dart';
 import 'package:expense_tracker/models/hive_listtile_model.dart';
 import 'package:expense_tracker/provider/category_notifier.dart';
+import 'package:expense_tracker/provider/common_notifier.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
+import 'package:expense_tracker/screens/transactions_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
@@ -19,10 +20,26 @@ class _AnalysisPageState extends State<AnalysisPage> {
   Map<String, int> categoryWiseMoney = {};
   int totalMoney = 0;
   int knownCategoryExpense = 0;
+  
+ 
+
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<CommonNotifier>(context, listen: false).loadChartData();
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
     CategoryNotifier categoryNotifier = Provider.of<CategoryNotifier>(context);
+    MoneyNotifier moneyNotifier = Provider.of<MoneyNotifier>(context);
+    CommonNotifier commonNotifier = Provider.of<CommonNotifier>(context);
+    String startDate =
+        commonNotifier.getMonthYear(moneyNotifier.startDate ?? DateTime.now());
+    String endDate =
+        commonNotifier.getMonthYear(moneyNotifier.endDate ?? DateTime.now());
     List<HiveListTileModel> categoryArray = [
       ...categoryNotifier.expenseCategories,
       HiveListTileModel(
@@ -36,127 +53,199 @@ class _AnalysisPageState extends State<AnalysisPage> {
       appBar: AppBar(
         title: const Text('Analysis'),
       ),
-      body: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        scrollDirection: Axis.vertical,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 26.0, vertical: 8.0),
-              child: Text("Category-Wise Analysis",style: TextStyle(
-                fontSize: 20,fontWeight: FontWeight.w700,
-              ),),
-            ),
-            Card(
-              shadowColor: Colors.grey,
-              elevation: 10,
-              margin: const EdgeInsets.all(16.0),
-              child: Container(
-                padding: const EdgeInsets.symmetric(vertical: 24.0),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(12.0),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize:
-                      MainAxisSize.min, // Ensures the column takes the minimum height
-                  children: [
-                    const Text(
-                      "This Month",
-                      style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+      body: categoryNotifier.userSavedCategoryMap.isNotEmpty
+          ? SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              scrollDirection: Axis.vertical,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 26.0, vertical: 8.0),
+                    child: Text(
+                      "Category-Wise Analysis",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                    AspectRatio(
-                      aspectRatio: 1.3,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: PieChart(
-                          PieChartData(
-                            sections: _showingSections(
-                                context, _touchedIndex), // Pass the touched index
-                            centerSpaceRadius: 30,
-                            sectionsSpace: 1,
-                            borderData: FlBorderData(
-                              show: true,
-                              border: Border.all(color: Colors.black, width: 1),
-                            ),
-                            pieTouchData: PieTouchData(
-                              touchCallback: (FlTouchEvent event, pieTouchResponse) {
-                                if (pieTouchResponse != null &&
-                                    pieTouchResponse.touchedSection != null) {
-                                  setState(() {
-                                    _touchedIndex = pieTouchResponse.touchedSection!
-                                        .touchedSectionIndex; // Update touched index
-                                  });
-                                } else {
-                                  setState(() {
-                                    _touchedIndex =
-                                        -1; // Reset touched index if no section is touched
-                                  });
-                                }
+                  ),
+                  Card(
+                    shadowColor: Colors.grey,
+                    elevation: 10,
+                    margin: const EdgeInsets.all(16.0),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(vertical: 24.0),
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12.0),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          (startDate == endDate)
+                              ?  const Text(
+                                  "This Month",
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                )
+                              : Text(
+                                  "$startDate - $endDate",
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                          commonNotifier.isDataReady
+                              ? AspectRatio(
+                                  aspectRatio: 1.3,
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: PieChart(
+                                      PieChartData(
+                                        sections: _showingSections(
+                                            context, _touchedIndex),
+                                        centerSpaceRadius: 30,
+                                        sectionsSpace: 1,
+                                        borderData: FlBorderData(
+                                          show: true,
+                                          border: Border.all(
+                                              color: Colors.black, width: 1),
+                                        ),
+                                        pieTouchData: PieTouchData(
+                                          touchCallback: (FlTouchEvent event,
+                                              pieTouchResponse) {
+                                            if (pieTouchResponse != null &&
+                                                pieTouchResponse
+                                                        .touchedSection !=
+                                                    null) {
+                                              setState(() {
+                                                _touchedIndex = pieTouchResponse
+                                                    .touchedSection!
+                                                    .touchedSectionIndex;
+                                              });
+                                            } else {
+                                              setState(() {
+                                                _touchedIndex = -1;
+                                              });
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              : Container(
+                                height: MediaQuery.of(context).size.height * 0.35,
+                                width: MediaQuery.of(context).size.width * 0.3,
+                                alignment: Alignment.center,
+                                child: const Center(child: CircularProgressIndicator())),
+                          Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: categoryArray.length,
+                              itemBuilder: (context, index) {
+                                final category = categoryArray[index];
+                                bool isHighlighted = _touchedIndex == index;
+
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    color: isHighlighted
+                                        ? category.bgColor
+                                                ?.withOpacity(0.3) ??
+                                            Colors.grey.shade300
+                                                .withOpacity(0.3)
+                                        : Colors.transparent,
+                                    borderRadius: BorderRadius.circular(40.0),
+                                    border: Border.all(
+                                      color: isHighlighted
+                                          ? category.bgColor
+                                                  ?.withOpacity(1) ??
+                                              Colors.grey.shade300
+                                                  .withOpacity(0.3)
+                                          : Colors.transparent,
+                                      width: 2.0,
+                                    ),
+                                  ),
+                                  child: ListTile(
+                                    title: Text(category.title ?? "Unknown"),
+                                    trailing: Text(
+                                      "₹${categoryWiseMoney[category.title] ?? totalMoney - knownCategoryExpense}",
+                                      style: const TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.green,
+                                          fontWeight: FontWeight.bold),
+                                    ),
+                                    leading: CircleAvatar(
+                                      radius: 24.0,
+                                      backgroundColor: category.bgColor,
+                                      child: Icon(
+                                        category.iconData,
+                                        color: Colors.white,
+                                        size: 24.0,
+                                      ),
+                                    ),
+                                  ),
+                                );
                               },
                             ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
-                    // Category labels
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: ListView.builder(
-                        shrinkWrap:
-                            true, // Ensures the ListView takes only the necessary height
-                        physics:
-                            const NeverScrollableScrollPhysics(), // Disables scrolling
-                        itemCount: categoryArray.length,
-                        itemBuilder: (context, index) {
-                          final category = categoryArray[index];
-                          bool isHighlighted = _touchedIndex == index;
-            
-                          return Container(
-                            decoration: BoxDecoration(
-                              color: isHighlighted
-                                  ? category.bgColor?.withOpacity(0.3) ??
-                                      Colors.grey.shade300.withOpacity(0.3)
-                                  : Colors.transparent,
-                              borderRadius: BorderRadius.circular(40.0),
-                              border: Border.all(
-                                color: isHighlighted
-                                    ? category.bgColor?.withOpacity(1) ??
-                                        Colors.grey.shade300.withOpacity(0.3)
-                                    : Colors.transparent,
-                                width: 2.0,
-                              ),
-                            ),
-                            child: ListTile(
-                              title: Text(category.title ?? "Unknown"),
-                              trailing: Text(
-                                "₹${categoryWiseMoney[category.title] ?? totalMoney - knownCategoryExpense}",
-                                style: const TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.green,
-                                    fontWeight: FontWeight.bold),
-                              ),
-                              leading: CircleAvatar(
-                                radius: 24.0,
-                                backgroundColor: category.bgColor,
-                                child: Icon(
-                                  category.iconData,
-                                  color: Colors.white,
-                                  size: 24.0,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+            )
+          : noDataFound(context),
+    );
+  }
+
+  Center noDataFound(BuildContext context) {
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(30.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Text(
+              "No data found",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
             ),
+            const SizedBox(
+              height: 20,
+            ),
+            const Icon(
+              Icons.no_sim_outlined,
+              size: 100,
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            const Text(
+              "Add some categories to transactions to see analysis",
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w400),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const TransactionsPage()));
+                },
+                child: const Text("Go to Transactions"))
           ],
         ),
       ),

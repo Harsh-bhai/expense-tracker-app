@@ -22,18 +22,15 @@ class HiveListTileModelAdapter extends TypeAdapter<HiveListTileModel> {
       page: fields[2] as String?,
       iconFontFamily: fields[4] as String?,
       iconFontPackage: fields[5] as String?,
-      categoryName: fields[6] as String?,
-      onTap: fields[7] as String?,
     )
       ..iconCodePoint = fields[3] as int?
-      ..bgColorValue = fields[8] as int?
-      ..iconColorValue = fields[9] as int?;
+      ..bgColorValue = fields[8] as int?;
   }
 
   @override
   void write(BinaryWriter writer, HiveListTileModel obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(7)
       ..writeByte(0)
       ..write(obj.title)
       ..writeByte(1)
@@ -46,14 +43,8 @@ class HiveListTileModelAdapter extends TypeAdapter<HiveListTileModel> {
       ..write(obj.iconFontFamily)
       ..writeByte(5)
       ..write(obj.iconFontPackage)
-      ..writeByte(6)
-      ..write(obj.categoryName)
-      ..writeByte(7)
-      ..write(obj.onTap)
       ..writeByte(8)
-      ..write(obj.bgColorValue)
-      ..writeByte(9)
-      ..write(obj.iconColorValue);
+      ..write(obj.bgColorValue);
   }
 
   @override

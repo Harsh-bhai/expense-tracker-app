@@ -10,8 +10,7 @@ class MyBottomBar extends StatefulWidget {
 }
 
 class _MyBottomBarState extends State<MyBottomBar> {
-
-  void _onItemTapped(int index,CommonNotifier commonNotifier) {
+  void _onItemTapped(int index, CommonNotifier commonNotifier) {
     // switch (index) {
     //   case 0:
     //     Navigator.pushReplacement(
@@ -45,7 +44,8 @@ class _MyBottomBarState extends State<MyBottomBar> {
 
   @override
   Widget build(BuildContext context) {
-     CommonNotifier commonNotifier = Provider.of<CommonNotifier>(context,listen: false);
+    CommonNotifier commonNotifier =
+        Provider.of<CommonNotifier>(context, listen: false);
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
       items: const <BottomNavigationBarItem>[
@@ -62,14 +62,14 @@ class _MyBottomBarState extends State<MyBottomBar> {
           label: 'Categories',
         ),
         BottomNavigationBarItem(
-          icon: Icon(Icons.account_circle_rounded),
-          label: 'Account',
+          icon: Icon(Icons.info),
+          label: 'About us',
         ),
       ],
       currentIndex: commonNotifier.selectedIndex,
-      selectedItemColor: Colors.cyan,
+      selectedItemColor: Colors.green.shade800,
       unselectedItemColor: Colors.grey,
-      onTap: (index) => _onItemTapped(index,commonNotifier),
+      onTap: (index) => _onItemTapped(index, commonNotifier),
     );
   }
 }

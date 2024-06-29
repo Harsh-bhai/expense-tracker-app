@@ -4,20 +4,20 @@ import 'package:expense_tracker/components/date_picker_button.dart';
 import 'package:expense_tracker/components/dropdown.dart';
 import 'package:expense_tracker/models/hive_listtile_model.dart';
 import 'package:expense_tracker/provider/category_notifier.dart';
+import 'package:expense_tracker/provider/common_notifier.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
 import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart';
 
-class Transactions extends StatefulWidget {
-  const Transactions({super.key});
+class TransactionsPage extends StatefulWidget {
+  const TransactionsPage({super.key});
 
   @override
-  State<Transactions> createState() => _TransactionsState();
+  State<TransactionsPage> createState() => _TransactionsPageState();
 }
 
-class _TransactionsState extends State<Transactions>
+class _TransactionsPageState extends State<TransactionsPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
@@ -62,20 +62,22 @@ class _TransactionsState extends State<Transactions>
       {bool isDebit = true}) {
     MoneyNotifier moneyNotifier =
         Provider.of<MoneyNotifier>(context, listen: false);
-    CategoryNotifier categoryNotifier =
-        Provider.of<CategoryNotifier>(context);
+    CategoryNotifier categoryNotifier = Provider.of<CategoryNotifier>(context);
+    CommonNotifier commonNotifier = Provider.of<CommonNotifier>(context);
 
     return messages.isEmpty
         ? const Center(child: CircularProgressIndicator())
         : ListView.builder(
+            physics: const BouncingScrollPhysics(),
+            scrollDirection: Axis.vertical,
             itemCount: messages.length,
             itemBuilder: (context, index) {
               SmsMessage message = messages[index];
               String currentCategoryName =
                   categoryNotifier.getCategoryNameById(message.id ?? 0);
-              HiveListTileModel? currentCategory =
-                  categoryNotifier.findCategory(currentCategoryName,isDebit: isDebit);
-                  print("currentCategoryName: $currentCategory");
+              HiveListTileModel? currentCategory = categoryNotifier
+                  .findCategory(currentCategoryName, isDebit: isDebit);
+              print("currentCategoryName: $currentCategory");
               Match? moneyMatch = moneyNotifier.moneyregex.firstMatch(
                   message.body!.toLowerCase().replaceFirst(",", ""));
               if (moneyMatch != null) {
@@ -87,14 +89,15 @@ class _TransactionsState extends State<Transactions>
                   elevation: 0,
                   child: ListTile(
                     onLongPress: () {
-                      transactionDialog(context,
+                      transactionDialog(context, commonNotifier,
                           message: message, isDebit: isDebit);
                     },
-                    leading:  CircleAvatar(
+                    leading: CircleAvatar(
                       radius: 24.0,
-                      backgroundColor: currentCategory?.bgColor ?? Colors.grey.shade300,
+                      backgroundColor:
+                          currentCategory?.bgColor ?? Colors.grey.shade300,
                       child: Icon(
-                         currentCategory?.iconData ?? Icons.question_mark,
+                        currentCategory?.iconData ?? Icons.question_mark,
                         color: Colors.white,
                         size: 24.0,
                       ),
@@ -103,11 +106,13 @@ class _TransactionsState extends State<Transactions>
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          formatDateTime(message.date ?? DateTime.now())[0],
+                          commonNotifier.formatDateTime(
+                              message.date ?? DateTime.now())[0],
                           style: const TextStyle(color: Colors.black),
                         ),
                         Text(
-                          formatDateTime(message.date ?? DateTime.now())[1],
+                          commonNotifier.formatDateTime(
+                              message.date ?? DateTime.now())[1],
                           style: TextStyle(
                               fontSize: 9, color: Colors.grey.shade500),
                         ),
@@ -131,7 +136,8 @@ class _TransactionsState extends State<Transactions>
           );
   }
 
-  Future<dynamic> transactionDialog(BuildContext context,
+  Future<dynamic> transactionDialog(
+      BuildContext context, CommonNotifier commonNotifier,
       {required SmsMessage message, required bool isDebit}) {
     return showDialog(
       context: context,
@@ -174,7 +180,7 @@ class _TransactionsState extends State<Transactions>
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                "Date: ${formatDateTime(message.date ?? DateTime.now())[0]}",
+                "Date: ${commonNotifier.formatDateTime(message.date ?? DateTime.now())[0]}",
               ),
             ),
             const SizedBox(
@@ -183,7 +189,7 @@ class _TransactionsState extends State<Transactions>
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                "Time: ${formatDateTime(message.date ?? DateTime.now())[1]}",
+                "Time: ${commonNotifier.formatDateTime(message.date ?? DateTime.now())[1]}",
               ),
             ),
           ],
@@ -206,15 +212,4 @@ class _TransactionsState extends State<Transactions>
       ),
     );
   }
-}
-
-List<String> formatDateTime(DateTime dateTime) {
-  // Format the date as "day monthname year"
-  String formattedDate = DateFormat('d MMM yy').format(dateTime);
-
-  // Format the time as "hour:minute AM/PM"
-  String formattedTime = DateFormat('h:mm a').format(dateTime);
-
-  // Return the formatted date and time as a list
-  return [formattedDate, formattedTime];
 }

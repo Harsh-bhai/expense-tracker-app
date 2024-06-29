@@ -1,5 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'package:expense_tracker/provider/category_notifier.dart';
+import 'package:expense_tracker/provider/common_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -20,63 +22,87 @@ class MoneyNotifier extends ChangeNotifier {
   int debitMoney = 0;
   int creditMoney = 0;
   bool isMessagesLoading = false;
+  final Map<DateTime, List<MapEntry<int, DateTime>>> _sameDayMoney = {};
 
 
+Future<void> getSmsMessages() async {
+  isMessagesLoading = true;
+  creditMoney = 0;
+  debitMoney = 0;
+  final permission = await Permission.sms.request();
+  if (permission.isGranted) {
+    final messages = await _query.querySms(kinds: [SmsQueryKind.inbox]);
+    final startDate = _startDate ?? DateTime(DateTime.now().year, DateTime.now().month, 1);
+    final endDate = _endDate ?? DateTime.now();
+    _debitMessages.clear();
+    _creditMessages.clear();
+    _sameDayMoney.clear();
 
-  Future<void> getSmsMessages() async {
-    isMessagesLoading = true;
-    creditMoney = 0;
-    debitMoney = 0;
-    final permission = await Permission.sms.request();
-    if (permission.isGranted) {
-      final messages = await _query.querySms(kinds: [SmsQueryKind.inbox]);
-      final startDate =
-          _startDate ?? DateTime(DateTime.now().year, DateTime.now().month, 1);
-      final endDate = _endDate ?? DateTime.now();
-      _debitMessages.clear();
-      _creditMessages.clear();
-      for (final message in messages) {
-        final messageDate = message.date;
-        if (message.body != null &&
-                message.sender != null &&
-                ((message.sender!.contains("-BOBSMS") || message.sender!.contains("-BOBTXN")) &&
-                    debitregex.hasMatch(message.body!.toLowerCase())) ||
-            (message.sender!.contains("-BOBTXN") &&
-                creditregex.hasMatch(message.body!.toLowerCase()))) {
-          if (messageDate != null &&
-              messageDate.isAfter(startDate) &&
-              messageDate.isBefore(endDate)) {
-            if (message.sender!.contains("-BOBSMS") || message.sender!.contains("-BOBTXN")) {
-              // Try to find a match in the message body
-              Match? moneyMatch = moneyregex.firstMatch(
-                  message.body!.toLowerCase().replaceFirst(",", ""));
-              if (moneyMatch != null) {
-                int amount = int.parse(moneyMatch.group(1)!);
-                debitMoney +=
-                    amount; // Assuming debitMoney is a double for precision
-                _debitMessages.add(message);
+    for (final message in messages) {
+      final messageDate = message.date;
+      if (messageDate != null &&
+          messageDate.isAfter(startDate) &&
+          messageDate.isBefore(endDate)) {
+
+        // Get the date part of the message date
+        final messageDay = DateTime(messageDate.year, messageDate.month, messageDate.day);
+
+        // If the day has changed, clear the _sameDayMoney set
+        if (!_sameDayMoney.containsKey(messageDay)) {
+          _sameDayMoney[messageDay] = <MapEntry<int, DateTime>>[];
+        }
+
+        // Edge cases
+        if (message.body != null && message.sender != null) {
+
+          // Get debit messages
+          if ((message.sender!.contains("-BOBSMS") || message.sender!.contains("-BOBTXN")) &&
+              debitregex.hasMatch(message.body!.toLowerCase())) {
+
+            // Extract money from message
+            Match? moneyMatch = moneyregex.firstMatch(message.body!.toLowerCase().replaceFirst(",", ""));
+            if (moneyMatch != null) {
+              int amount = int.parse(moneyMatch.group(1)!);
+              bool withinSixHours = false;
+
+              // Check if any transaction within 6 hours has the same amount
+              for (final entry in _sameDayMoney[messageDay]!) {
+                if (entry.key == amount && messageDate.difference(entry.value).inHours < 2) {
+                  withinSixHours = true;
+                  break;
+                }
               }
-            } if (message.sender!.contains("-BOBTXN") &&
-                    creditregex.hasMatch(message.body!.toLowerCase())) {
-              // Try to find a match in the message body
-              Match? moneyMatch = moneyregex.firstMatch(
-                  message.body!.toLowerCase().replaceFirst(",", ""));
-              // Extract and parse the amount from the match
-              int amount = int.parse(moneyMatch!.group(1)!);
-              creditMoney +=
-                  amount; // Assuming creditMoney is a double for precision
+
+              if (!withinSixHours) {
+                debitMoney += amount;
+                _debitMessages.add(message);
+                _sameDayMoney[messageDay]!.add(MapEntry(amount, messageDate));
+              }
+            }
+          }
+
+          // Get credited money
+          if (message.sender!.contains("-BOBTXN") &&
+              creditregex.hasMatch(message.body!.toLowerCase())) {
+            // Try to find a match in the message body
+            Match? moneyMatch = moneyregex.firstMatch(message.body!.toLowerCase().replaceFirst(",", ""));
+            // Extract and parse the amount from the match
+            if (moneyMatch != null) {
+              int amount = int.parse(moneyMatch.group(1)!);
+              creditMoney += amount;
               _creditMessages.add(message);
             }
           }
         }
       }
-      notifyListeners();
-      isMessagesLoading = false;
     }
+    notifyListeners();
+    isMessagesLoading = false;
   }
+}
 
   bool isStartDateLoading = false;
-  Future<void> selectStartDateWithProgressIndicator(
+  Future<void> selectStartDate(
       BuildContext context, StateSetter setterState) async {
     isStartDateLoading = true;
     final picked = await showDatePicker(
@@ -95,7 +121,7 @@ class MoneyNotifier extends ChangeNotifier {
   }
 
   bool isEndDateLoading = false;
-  Future<void> selectEndDateWithProgressIndicator(
+  Future<void> selectEndDate(
       BuildContext context, StateSetter setterState) async {
     isEndDateLoading = true;
     final picked = await showDatePicker(
@@ -113,22 +139,30 @@ class MoneyNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-// crete a method to get debit single smsmessage by message id
-
+//  get debit single smsmessage by message id
   SmsMessage? getDebitMessageById(int id) {
     return _debitMessages.firstWhere((message) => message.id == id);
   }
 
   int getMoneyFromRegex(RegExp regex, SmsMessage message) {
-    int amount=0;
-    Match? moneyMatch = regex.firstMatch(message.body!.toLowerCase().replaceFirst(",", ""));
+    int amount = 0;
+    Match? moneyMatch =
+        regex.firstMatch(message.body!.toLowerCase().replaceFirst(",", ""));
     // Extract and parse the amount from the match
     if (moneyMatch != null) {
-    amount = int.parse(moneyMatch.group(1)!);
+      amount = int.parse(moneyMatch.group(1)!);
     }
     return amount;
   }
+  
+  Future<void> refreshDates(CommonNotifier commonNotifier) async {
+    commonNotifier.isDataReady = false;
+    _startDate = DateTime(DateTime.now().year, DateTime.now().month, 1);
+    _endDate = DateTime.now();
+    await getSmsMessages();
+    commonNotifier.loadChartData();
+    notifyListeners();
+    
+  }
 
-  
-  
 }

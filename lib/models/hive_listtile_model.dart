@@ -23,17 +23,10 @@ class HiveListTileModel extends HiveObject {
   @HiveField(5)
   String? iconFontPackage;
 
-  @HiveField(6)
-  String? categoryName;
-
-  @HiveField(7)
-  String? onTap;
 
   @HiveField(8)
   int? bgColorValue;
 
-  @HiveField(9)
-  int? iconColorValue;
 
   HiveListTileModel({
     this.title,
@@ -42,10 +35,7 @@ class HiveListTileModel extends HiveObject {
     IconData? icon,
     this.iconFontFamily,
     this.iconFontPackage,
-    this.categoryName,
-    this.onTap,
     Color? bgColor,
-    Color? iconColor,
   }) {
     // Initialize icon fields
     if (icon != null) {
@@ -54,7 +44,6 @@ class HiveListTileModel extends HiveObject {
       iconFontPackage = icon.fontPackage;
     }
     bgColorValue = bgColor?.value;
-    iconColorValue = iconColor?.value;
   }
 
   IconData? get iconData {
@@ -67,5 +56,4 @@ class HiveListTileModel extends HiveObject {
   }
 
   Color? get bgColor => bgColorValue == null ? null : Color(bgColorValue!);
-  Color? get iconColor => iconColorValue == null ? null : Color(iconColorValue!);
 }

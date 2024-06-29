@@ -11,7 +11,7 @@ class DatePickerButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      backgroundColor: Colors.grey.shade300,
+      backgroundColor: Colors.green.shade100,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(50),
       ),
@@ -35,7 +35,7 @@ class DatePickerButton extends StatelessWidget {
                               color: Colors.green)
                           : null,
                       onTap: () {
-                        moneyNotifier.selectStartDateWithProgressIndicator(context, setterState);
+                        moneyNotifier.selectStartDate(context, setterState);
                       },
                     ),
                   ),
@@ -48,7 +48,7 @@ class DatePickerButton extends StatelessWidget {
                               color: Colors.green)
                           : null,
                       onTap: () {
-                        moneyNotifier.selectEndDateWithProgressIndicator(context, setterState);
+                        moneyNotifier.selectEndDate(context, setterState);
                       },
                     ),
                   ),

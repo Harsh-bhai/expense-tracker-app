@@ -1,5 +1,6 @@
 import 'package:expense_tracker/components/money_bubble.dart';
 import 'package:expense_tracker/models/listtile_model.dart';
+import 'package:expense_tracker/provider/common_notifier.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
 import 'package:expense_tracker/screens/about_page.dart';
 import 'package:expense_tracker/screens/budget_page.dart';
@@ -14,12 +15,16 @@ class HomePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    MoneyNotifier moneyNotifier = Provider.of<MoneyNotifier>(context);
+    CommonNotifier commonNotifier = Provider.of<CommonNotifier>(context);
+    String startDate =commonNotifier.getMonthYear(moneyNotifier.startDate ?? DateTime.now());
+    String endDate = commonNotifier.getMonthYear(moneyNotifier.endDate ?? DateTime.now());
     final List<ListTileModel> options = [
       ListTileModel(
           title: 'Transactions',
           subtitle: 'View your Transactions history',
           icon: Icons.history,
-          page: const Transactions(),
+          page: const TransactionsPage(),
           iconColor: Colors.orange),
       ListTileModel(
           title: 'Reminder',
@@ -40,7 +45,7 @@ class HomePage extends StatelessWidget {
           page: const AboutPage(),
           iconColor: Colors.blue),
     ];
-    MoneyNotifier moneyNotifier = Provider.of<MoneyNotifier>(context);
+    
     return Scaffold(
       appBar: AppBar(
         title: const Padding(
@@ -67,11 +72,17 @@ class HomePage extends StatelessWidget {
       ),
       body: Column(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(30.0),
-            child: Text(
+            Padding(
+            padding: const EdgeInsets.all(30.0),
+            child: (startDate == endDate) ? const Text(
               "This Month",
               style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
+            ) : Text(
+              "$startDate - $endDate",
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
               ),
@@ -119,6 +130,7 @@ class HomePage extends StatelessWidget {
           ),
           Expanded(
             child: ListView.builder(
+              // physics: const BouncingScrollPhysics(),
               itemCount: options.length,
               itemBuilder: (context, index) {
                 return ListTile(
