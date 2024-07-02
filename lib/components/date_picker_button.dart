@@ -70,7 +70,7 @@ class DatePickerButton extends StatelessWidget {
           }),
         );
       },
-      child: const Icon(Icons.filter_alt),
+      child:  Icon(Icons.filter_alt,color: Colors.green.shade800,),
     );
   }
 }

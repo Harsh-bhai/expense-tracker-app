@@ -26,7 +26,6 @@ class HiveListTileModel extends HiveObject {
   @HiveField(6)
   int? bgColorValue;
 
-
   HiveListTileModel({
     this.title,
     this.subtitle,
