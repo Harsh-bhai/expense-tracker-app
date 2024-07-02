@@ -1,16 +1,21 @@
-# expense_tracker
+# Expense Tracker
+This application helps you keep **track** of your **Expenses** and **Income**.  
+You can manage your daily expenses.  
+You can track your unnessary expenses and avoid them.
 
-A new Flutter project.
+## Technologies used
+- Flutter
+- Dart
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## Images
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+<table>
+  <tr>
+    <td><img src="assets/images/1.jpg" width="200" /></td>
+    <td><img src="assets/images/2.jpg" width="200" /></td>
+    <td><img src="assets/images/3.jpg" width="200" /></td>
+  </tr>
+</table>
