@@ -5,6 +5,7 @@ import 'package:expense_tracker/provider/money_notifier.dart';
 import 'package:expense_tracker/screens/transactions_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:provider/provider.dart';
 
@@ -26,7 +27,9 @@ class _AnalysisPageState extends State<AnalysisPage> {
   @override
   void initState() {
     super.initState();
-    Provider.of<CommonNotifier>(context, listen: false).loadChartData();
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      Provider.of<CommonNotifier>(context, listen: false).loadChartData();
+    });
   }
 
 
@@ -118,17 +121,16 @@ class _AnalysisPageState extends State<AnalysisPage> {
                                               color: Colors.black, width: 1),
                                         ),
                                         pieTouchData: PieTouchData(
-                                          touchCallback: (FlTouchEvent event,
-                                              pieTouchResponse) {
-                                            if (pieTouchResponse != null &&
-                                                pieTouchResponse
-                                                        .touchedSection !=
-                                                    null) {
+                                          touchCallback: (FlTouchEvent event,pieTouchResponse) {
+                                            if (pieTouchResponse != null &&pieTouchResponse.touchedSection !=null) {
                                               setState(() {
                                                 _touchedIndex = pieTouchResponse
                                                     .touchedSection!
                                                     .touchedSectionIndex;
                                               });
+                                              print("object: ${pieTouchResponse
+                                                    .touchedSection!
+                                                    .touchedSectionIndex}");
                                             } else {
                                               setState(() {
                                                 _touchedIndex = -1;
@@ -153,24 +155,26 @@ class _AnalysisPageState extends State<AnalysisPage> {
                               itemCount: categoryArray.length,
                               itemBuilder: (context, index) {
                                 final category = categoryArray[index];
-                                bool isHighlighted = _touchedIndex == index;
+                                // bool isHighlighted = _touchedIndex == index;
 
                                 return Container(
                                   decoration: BoxDecoration(
-                                    color: isHighlighted
-                                        ? category.bgColor
-                                                ?.withOpacity(0.3) ??
-                                            Colors.grey.shade300
-                                                .withOpacity(0.3)
-                                        : Colors.transparent,
+                                    color: 
+                                    // isHighlighted
+                                    //     ? category.bgColor
+                                    //             ?.withOpacity(0.3) ??
+                                    //         Colors.grey.shade300
+                                    //             .withOpacity(0.3):
+                                     Colors.transparent,
                                     borderRadius: BorderRadius.circular(40.0),
                                     border: Border.all(
-                                      color: isHighlighted
-                                          ? category.bgColor
-                                                  ?.withOpacity(1) ??
-                                              Colors.grey.shade300
-                                                  .withOpacity(0.3)
-                                          : Colors.transparent,
+                                      color: 
+                                      // isHighlighted
+                                      //     ? category.bgColor
+                                      //             ?.withOpacity(1) ??
+                                      //         Colors.grey.shade300
+                                      //             .withOpacity(0.3):
+                                                   Colors.transparent,
                                       width: 2.0,
                                     ),
                                   ),
@@ -252,8 +256,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
     );
   }
 
-  List<PieChartSectionData> _showingSections(
-      BuildContext context, int? touchedIndex) {
+  List<PieChartSectionData> _showingSections(BuildContext context, int? touchedIndex) {
     CategoryNotifier categoryNotifier = Provider.of<CategoryNotifier>(context);
     MoneyNotifier moneyNotifier = Provider.of<MoneyNotifier>(context);
     totalMoney = moneyNotifier.debitMoney;
@@ -264,11 +267,13 @@ class _AnalysisPageState extends State<AnalysisPage> {
     List<PieChartSectionData> sections = [];
 
     int index = 0; // Index tracker for sections
-    categoryNotifier.categoryMapExpense.forEach((key, value) {
+    try {
+      categoryNotifier.categoryMapExpense.forEach((key, value) {
       HiveListTileModel? categoryName =
           categoryNotifier.findCategory(key, isDebit: true);
 
       for (var element in value) {
+        print("key: $key, value: $value");
         SmsMessage? message = moneyNotifier.getDebitMessageById(element);
         int amount =
             moneyNotifier.getMoneyFromRegex(moneyNotifier.moneyregex, message!);
@@ -279,8 +284,8 @@ class _AnalysisPageState extends State<AnalysisPage> {
       double percentage =
           (categoryWiseMoney[categoryName?.title ?? ""]! / totalMoney) * 100;
 
-      bool isTouched =
-          index == touchedIndex; // Check if this section is touched
+      // Check if this section is touched
+      // bool isTouched = (index == touchedIndex); 
       double radius = 80; // Increase radius if touched
       double fontSize = 12; // Increase font size if touched
 
@@ -289,9 +294,10 @@ class _AnalysisPageState extends State<AnalysisPage> {
         value: percentage,
         title: '${percentage.toStringAsFixed(0)}%',
         radius: radius,
-        borderSide: isTouched
-            ? const BorderSide(color: Colors.black, width: 4)
-            : BorderSide(color: Colors.black.withOpacity(0)),
+        borderSide:
+        //  isTouched
+        //     ? const BorderSide(color: Colors.black, width: 4):
+             BorderSide(color: Colors.black.withOpacity(0)),
         titleStyle: TextStyle(
           fontSize: fontSize,
           fontWeight: FontWeight.bold,
@@ -303,6 +309,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
       index++;
     });
 
+    
     double percentage =
         ((totalMoney - knownCategoryExpense) / totalMoney) * 100;
     PieChartSectionData unknownMoneySection = PieChartSectionData(
@@ -310,9 +317,10 @@ class _AnalysisPageState extends State<AnalysisPage> {
       value: percentage,
       title: '${percentage.toStringAsFixed(0)}%',
       radius: 80,
-      borderSide: touchedIndex == sections.length
-          ? const BorderSide(color: Colors.black, width: 4)
-          : BorderSide(color: Colors.black.withOpacity(0)),
+      borderSide: 
+      // touchedIndex == sections.length
+      //     ? const BorderSide(color: Colors.black, width: 4):
+           BorderSide(color: Colors.black.withOpacity(0)),
       titleStyle: const TextStyle(
         fontSize: 12,
         fontWeight: FontWeight.bold,
@@ -320,6 +328,9 @@ class _AnalysisPageState extends State<AnalysisPage> {
       ),
     );
     sections.add(unknownMoneySection);
+    print("index: $index");
+    } catch (e) {
+    }
     return sections;
   }
 

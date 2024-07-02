@@ -24,7 +24,7 @@ class HiveListTileModelAdapter extends TypeAdapter<HiveListTileModel> {
       iconFontPackage: fields[5] as String?,
     )
       ..iconCodePoint = fields[3] as int?
-      ..bgColorValue = fields[8] as int?;
+      ..bgColorValue = fields[6] as int?;
   }
 
   @override
@@ -43,7 +43,7 @@ class HiveListTileModelAdapter extends TypeAdapter<HiveListTileModel> {
       ..write(obj.iconFontFamily)
       ..writeByte(5)
       ..write(obj.iconFontPackage)
-      ..writeByte(8)
+      ..writeByte(6)
       ..write(obj.bgColorValue);
   }
 

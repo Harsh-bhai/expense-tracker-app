@@ -2,20 +2,17 @@ import 'package:expense_tracker/models/hive_listtile_model.dart';
 import 'package:expense_tracker/provider/category_notifier.dart';
 import 'package:expense_tracker/provider/common_notifier.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
+import 'package:expense_tracker/screens/landing_page.dart';
 import 'package:expense_tracker/screens/spash_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Hive.initFlutter();
-  Hive.registerAdapter(HiveListTileModelAdapter()); // Register the generated adapter
-  
-  // Open the necessary boxes before running the app
-  await Hive.openBox<List>('categoryBox');
-  await Hive.openBox('settings');
-  await Hive.openBox('maps');
+  await splashScreenInit();
+  await hiveInit();
   
   // Ensure checkFirstLaunch runs only after Hive initialization
   await checkFirstLaunch();
@@ -31,6 +28,21 @@ void main() async {
       child: const MyApp(),
     ),
   );
+}
+
+Future<void> hiveInit() async {
+  await Hive.initFlutter();
+  Hive.registerAdapter(HiveListTileModelAdapter()); // Register the generated adapter
+  
+  // Open the necessary boxes before running the app
+  await Hive.openBox<List>('categoryBox');
+  await Hive.openBox('settings');
+  await Hive.openBox('maps');
+}
+
+Future<void> splashScreenInit() async {
+  await Future.delayed(const Duration(seconds:1));
+  FlutterNativeSplash.remove();
 }
 
 Future<void> checkFirstLaunch() async {
@@ -78,19 +90,9 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
         useMaterial3: true,
       ),
-      home: refreshWrapper(moneyNotifier, commonNotifier, const SplashScreen()),
+      home: const LandingPage(),
     );
   }
 
-  RefreshIndicator refreshWrapper(MoneyNotifier moneyNotifier, CommonNotifier commonNotifier, Widget child) {
-    return RefreshIndicator(
-      color: Colors.deepPurple,
-      backgroundColor: Colors.white,
-      strokeWidth: 2,
-      triggerMode: RefreshIndicatorTriggerMode.onEdge,
-      displacement: 100,
-      edgeOffset: 20,
-      onRefresh: () => moneyNotifier.refreshDates(commonNotifier),
-      child: child,);
-  }
+ 
 }

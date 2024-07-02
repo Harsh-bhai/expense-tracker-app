@@ -63,17 +63,17 @@ Future<void> getSmsMessages() async {
             Match? moneyMatch = moneyregex.firstMatch(message.body!.toLowerCase().replaceFirst(",", ""));
             if (moneyMatch != null) {
               int amount = int.parse(moneyMatch.group(1)!);
-              bool withinSixHours = false;
+              bool withinTwoHours = false;
 
               // Check if any transaction within 6 hours has the same amount
               for (final entry in _sameDayMoney[messageDay]!) {
                 if (entry.key == amount && messageDate.difference(entry.value).inHours < 2) {
-                  withinSixHours = true;
+                  withinTwoHours = true;
                   break;
                 }
               }
 
-              if (!withinSixHours) {
+              if (!withinTwoHours) {
                 debitMoney += amount;
                 _debitMessages.add(message);
                 _sameDayMoney[messageDay]!.add(MapEntry(amount, messageDate));

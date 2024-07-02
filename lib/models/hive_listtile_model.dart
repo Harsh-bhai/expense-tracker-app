@@ -23,8 +23,7 @@ class HiveListTileModel extends HiveObject {
   @HiveField(5)
   String? iconFontPackage;
 
-
-  @HiveField(8)
+  @HiveField(6)
   int? bgColorValue;
 
 

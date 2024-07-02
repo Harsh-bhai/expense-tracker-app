@@ -43,12 +43,14 @@ class CategoryNotifier extends ChangeNotifier {
 
   void addCategory(dynamic category,
       {bool expense = false, bool income = false}) {
-    if (expense) {
+   if(category.title != ""){
+     if (expense) {
       _expenseCategories.add(category);
     }
     if (income) {
       _incomeCategories.add(category);
     }
+   }
     updateHive();
   }
 

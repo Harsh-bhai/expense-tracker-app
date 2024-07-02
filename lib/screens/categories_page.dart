@@ -148,9 +148,10 @@ class _CategoryPageState extends State<CategoryPage>
             child: Column(
               children: [
                 TextField(
+                  enabled : addFunction ? true : false,
                   controller: titleController,
-                  decoration: const InputDecoration(
-                    labelText: 'Category Name',
+                  decoration:  const InputDecoration(
+                    labelText:'Category Name (Unique)' ,
                   ),
                 ),
                 TextField(
