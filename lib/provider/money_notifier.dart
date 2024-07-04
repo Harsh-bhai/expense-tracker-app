@@ -141,8 +141,14 @@ Future<void> getSmsMessages() async {
 
 //  get debit single smsmessage by message id
   SmsMessage? getDebitMessageById(int id) {
-    return _debitMessages.firstWhere((message) => message.id == id);
+    for (var message in _debitMessages) {
+      if(message.id == id) {
+        return message;
+      }
+    }
+    return null;
   }
+
 
   int getMoneyFromRegex(RegExp regex, SmsMessage message) {
     int amount = 0;

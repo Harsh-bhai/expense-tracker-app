@@ -36,7 +36,7 @@ class _MyDropDownState extends State<MyDropDown> {
               padding: const EdgeInsets.all(8.0),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: currentCategory?.bgColor?.withOpacity(0.3),
+                color: currentCategory?.bgColor?.withOpacity(0.3) ?? Colors.white,
               ),
               child: const Icon(Icons.keyboard_arrow_down),
             ),
@@ -48,7 +48,7 @@ class _MyDropDownState extends State<MyDropDown> {
               padding: const EdgeInsets.all(8.0),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color: currentCategory?.bgColor?.withOpacity(0.3),
+                color: currentCategory?.bgColor?.withOpacity(0.3) ?? Colors.white,
               ),
               child:  Row(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -78,7 +78,7 @@ class _MyDropDownState extends State<MyDropDown> {
                   padding: const EdgeInsets.all(8.0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: category.bgColor.withOpacity(0.3),
+                    color: category.bgColor.withOpacity(0.3) ?? Colors.white,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,
@@ -109,7 +109,7 @@ class _MyDropDownState extends State<MyDropDown> {
               padding: const EdgeInsets.all(8.0),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
-                color: currentCategory?.bgColor?.withOpacity(0.3),
+                color: currentCategory?.bgColor?.withOpacity(0.3) ?? Colors.white,
               ),
               child: const Icon(Icons.keyboard_arrow_down),
             ),
@@ -121,7 +121,7 @@ class _MyDropDownState extends State<MyDropDown> {
               padding: const EdgeInsets.all(8.0),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(10),
-                color: Colors.yellow.withOpacity(0.3),
+                color: currentCategory?.bgColor?.withOpacity(0.3) ?? Colors.white,
               ),
               child:  Row(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -151,7 +151,7 @@ class _MyDropDownState extends State<MyDropDown> {
                   padding: const EdgeInsets.all(8.0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
-                    color: category.bgColor.withOpacity(0.3),
+                    color: category.bgColor.withOpacity(0.3) ?? Colors.white,
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,

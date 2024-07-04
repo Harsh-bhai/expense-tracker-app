@@ -275,8 +275,11 @@ class _AnalysisPageState extends State<AnalysisPage> {
       for (var element in value) {
         print("key: $key, value: $value");
         SmsMessage? message = moneyNotifier.getDebitMessageById(element);
+        if(message == null || message.date!.isBefore(moneyNotifier.startDate ?? DateTime.now()) && message.date!.isAfter(moneyNotifier.endDate ?? DateTime.now())) {
+          continue;
+        }
         int amount =
-            moneyNotifier.getMoneyFromRegex(moneyNotifier.moneyregex, message!);
+            moneyNotifier.getMoneyFromRegex(moneyNotifier.moneyregex, message);
         categoryWiseMoney[categoryName?.title ?? ""] =
             categoryWiseMoney[categoryName?.title ?? ""]! + amount;
         knownCategoryExpense = knownCategoryExpense + amount;
@@ -330,6 +333,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
     sections.add(unknownMoneySection);
     print("index: $index");
     } catch (e) {
+      print("error: $e");
     }
     return sections;
   }

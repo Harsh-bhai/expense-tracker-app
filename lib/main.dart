@@ -2,16 +2,13 @@ import 'package:expense_tracker/models/hive_listtile_model.dart';
 import 'package:expense_tracker/provider/category_notifier.dart';
 import 'package:expense_tracker/provider/common_notifier.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
-import 'package:expense_tracker/screens/landing_page.dart';
 import 'package:expense_tracker/screens/spash_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await splashScreenInit();
   await hiveInit();
   
   // Ensure checkFirstLaunch runs only after Hive initialization
@@ -40,10 +37,6 @@ Future<void> hiveInit() async {
   await Hive.openBox('maps');
 }
 
-Future<void> splashScreenInit() async {
-  await Future.delayed(const Duration(seconds:1));
-  FlutterNativeSplash.remove();
-}
 
 Future<void> checkFirstLaunch() async {
   var categoryBox = Hive.box<List>('categoryBox');
@@ -90,7 +83,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
         useMaterial3: true,
       ),
-      home: const LandingPage(),
+      home: const SplashScreen(),
     );
   }
 

@@ -49,17 +49,7 @@ dependencies:
   build_runner: ^2.4.9
   font_awesome_flutter: ^10.7.0
   intl: ^0.18.1
-  image_picker: ^1.1.2
-  flutter_native_splash: ^2.4.0
-  
-    
-flutter_native_splash:
-  android: true
-  ios: true
-  web: true
-  image: assets/images/logo.png
-  color: "#2e7d32"
-
+  image_picker: ^1.1.2  
 
 dev_dependencies:
   flutter_test:
