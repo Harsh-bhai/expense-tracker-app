@@ -6,6 +6,10 @@
 
 ### NOTE : As of Now, this application will work only for Bank Of Baroda(BOB) customers.
 
+## Demo Video Preview
+https://github.com/user-attachments/assets/4e90a74b-2000-4c44-862a-34c49cfb25f9
+
+
 ## Technologies used
 - Flutter
 - Dart
