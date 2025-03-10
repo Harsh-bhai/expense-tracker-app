@@ -2,10 +2,12 @@ import 'package:expense_tracker/models/hive_listtile_model.dart';
 import 'package:expense_tracker/provider/category_notifier.dart';
 import 'package:expense_tracker/provider/common_notifier.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
+import 'package:expense_tracker/screens/landing_page.dart';
 import 'package:expense_tracker/screens/spash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,6 +15,9 @@ void main() async {
   
   // Ensure checkFirstLaunch runs only after Hive initialization
   await checkFirstLaunch();
+
+    notificationsInit();
+
   
 
   runApp(
@@ -25,6 +30,23 @@ void main() async {
       child: const MyApp(),
     ),
   );
+}
+
+void notificationsInit() {
+  AwesomeNotifications().initialize(
+  null,
+  [
+    NotificationChannel(
+      channelKey: 'reminder_channel',
+      channelName: 'Reminders',
+      channelDescription: 'Reminder notifications to add category to transactions',
+      defaultColor: Colors.blue,
+      importance: NotificationImportance.High,
+      ledColor: Colors.white,
+    ),
+  ],
+  debug: true,
+    );
 }
 
 Future<void> hiveInit() async {
@@ -77,15 +99,19 @@ class MyApp extends StatelessWidget {
     moneyNotifier.getSmsMessages();
     Provider.of<CategoryNotifier>(context, listen: false).getCategories();
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Expense Tracker',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
         useMaterial3: true,
       ),
-      home: const SplashScreen(),
+      home: refreshWrapper(moneyNotifier, commonNotifier,
+              const LandingPage()),
+      // home: const SplashScreen(),
     );
   }
+
+
 
  
 }

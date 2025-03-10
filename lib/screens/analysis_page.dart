@@ -27,7 +27,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
   @override
   void initState() {
     super.initState();
-    SchedulerBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.scheduleFrameCallback((_) {
       Provider.of<CommonNotifier>(context, listen: false).loadChartData();
     });
   }

@@ -174,6 +174,7 @@ class _CategoryPageState extends State<CategoryPage>
                       iconPackModes: <IconPack>[
                         IconPack.fontAwesomeIcons,
                         IconPack.material,
+                        IconPack.cupertino,
                       ],
                       showSearchBar: true,
                       closeChild: const Text("OK"),

@@ -16,7 +16,7 @@ class MoneyNotifier extends ChangeNotifier {
   DateTime? get endDate => _endDate;
   List<SmsMessage> get debitMessages => _debitMessages;
   List<SmsMessage> get creditMessages => _creditMessages;
-  RegExp debitregex = RegExp(r"\b(debited | transferred)\s*\w+\s*a\/c\b");
+  RegExp debitregex = RegExp(r"\b(debited | transferred | withdrawn)\s*\w+\s*a\/c\b");
   RegExp creditregex = RegExp(r"\b(credited)\s*\w+\s*a\/c\b");
   RegExp moneyregex = RegExp(r"rs\s*\.?\s*(\d+)(?:\.00|\s|\w+)");
   int debitMoney = 0;
@@ -170,5 +170,9 @@ Future<void> getSmsMessages() async {
     notifyListeners();
     
   }
+
+  
+
+
 
 }

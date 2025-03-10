@@ -60,6 +60,7 @@ class _TransactionsPageState extends State<TransactionsPage>
 
   Widget _buildMessagesListView(List<SmsMessage> messages,
       {bool isDebit = true}) {
+        
     MoneyNotifier moneyNotifier =
         Provider.of<MoneyNotifier>(context, listen: false);
     CategoryNotifier categoryNotifier = Provider.of<CategoryNotifier>(context);
@@ -212,4 +213,5 @@ class _TransactionsPageState extends State<TransactionsPage>
       ),
     );
   }
+
 }

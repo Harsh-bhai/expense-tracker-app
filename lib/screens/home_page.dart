@@ -108,12 +108,12 @@ class HomePage extends StatelessWidget {
           const SizedBox(height: 30),
           Container(
             decoration: BoxDecoration(
-              color: Colors.green.shade100.withOpacity(0.7),
+              color: Colors.cyan.shade100.withOpacity(0.7),
               borderRadius: BorderRadius.circular(30.0),
             ),
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              "Balance : ₹${moneyNotifier.creditMoney - moneyNotifier.debitMoney}",style: const TextStyle(
+              "Net : ₹${moneyNotifier.creditMoney - moneyNotifier.debitMoney}",style: const TextStyle(
                 fontWeight: FontWeight.bold,
               ),
             ),
