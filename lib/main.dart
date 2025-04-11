@@ -2,6 +2,7 @@ import 'package:expense_tracker/models/hive_listtile_model.dart';
 import 'package:expense_tracker/provider/category_notifier.dart';
 import 'package:expense_tracker/provider/common_notifier.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
+import 'package:expense_tracker/provider/notifications_notifier.dart';
 import 'package:expense_tracker/screens/landing_page.dart';
 import 'package:expense_tracker/screens/spash_screen.dart';
 import 'package:flutter/material.dart';
@@ -16,7 +17,7 @@ void main() async {
   // Ensure checkFirstLaunch runs only after Hive initialization
   await checkFirstLaunch();
 
-    notificationsInit();
+  await notificationsInit();
 
   
 
@@ -26,14 +27,15 @@ void main() async {
         ChangeNotifierProvider(create: (_) => MoneyNotifier()),
         ChangeNotifierProvider(create: (_) => CategoryNotifier()),
         ChangeNotifierProvider(create: (_) => CommonNotifier()),
+        ChangeNotifierProvider(create: (_) => NotificationsNotifier()),
       ],
       child: const MyApp(),
     ),
   );
 }
 
-void notificationsInit() {
-  AwesomeNotifications().initialize(
+Future<void> notificationsInit() async {
+  await AwesomeNotifications().initialize(
   null,
   [
     NotificationChannel(
