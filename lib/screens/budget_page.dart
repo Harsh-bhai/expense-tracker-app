@@ -46,20 +46,20 @@ class _BudgetPageState extends State<BudgetPage> {
     }
   }
 
-  void _scheduleReminder(BuildContext context) {
-    if (_selectedDateTime != null) {
-      Provider.of<NotificationsNotifier>(context, listen: false)
-          .scheduleReminderNotification(
-        id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
-        title: 'Reminder',
-        body: 'Don\'t forget to categorize your transaction!',
-        scheduleTime: _selectedDateTime!,
-      );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Reminder set for $_selectedDateTime')),
-      );
-    }
-  }
+  // void _scheduleReminder(BuildContext context) {
+  //   if (_selectedDateTime != null) {
+  //     Provider.of<NotificationsNotifier>(context, listen: false)
+  //         .scheduleReminderNotification(
+  //       id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
+  //       title: 'Reminder',
+  //       body: 'Don\'t forget to categorize your transaction!',
+  //       scheduleTime: _selectedDateTime!,
+  //     );
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(content: Text('Reminder set for $_selectedDateTime')),
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
