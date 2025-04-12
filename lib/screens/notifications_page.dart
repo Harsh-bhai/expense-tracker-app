@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:expense_tracker/provider/notifications_notifier.dart';
 import 'package:flutter/material.dart';
@@ -16,115 +18,144 @@ class _NotificationsPageState extends State<NotificationsPage> {
   final TextEditingController _nameController = TextEditingController();
   bool _isDaily = false;
 
+  void _resetFormState() {
+    _selectedDateTime = null;
+    _nameController.clear();
+    _isDaily = false;
+  }
+
   void _pickDateTime(BuildContext context, {Reminder? existing}) async {
+    DateTime initialDate = existing?.time ?? DateTime.now();
     DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialDate: existing?.time ?? DateTime.now(),
+      initialDate: initialDate,
       firstDate: DateTime.now(),
       lastDate: DateTime(2030),
     );
 
-    if (pickedDate != null) {
-      TimeOfDay? pickedTime = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.fromDateTime(existing?.time ?? DateTime.now()),
-      );
+    if (pickedDate == null) return;
 
-      if (pickedTime != null) {
-        _selectedDateTime = DateTime(
-          pickedDate.year,
-          pickedDate.month,
-          pickedDate.day,
-          pickedTime.hour,
-          pickedTime.minute,
-        );
+    TimeOfDay? pickedTime = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(initialDate),
+    );
 
-        _nameController.text = existing?.name ?? '';
-        _isDaily = existing?.isDaily ?? false;
+    if (pickedTime == null) return;
 
-        _showReminderDialog(context, existing: existing);
-      }
-    }
+    _selectedDateTime = DateTime(
+      pickedDate.year,
+      pickedDate.month,
+      pickedDate.day,
+      pickedTime.hour,
+      pickedTime.minute,
+    );
+
+    _nameController.text = existing?.name ?? '';
+    _isDaily = existing?.isDaily ?? false;
+
+    _showReminderDialog(context, existing: existing);
   }
 
   void _showReminderDialog(BuildContext context, {Reminder? existing}) {
     showDialog(
       context: context,
-      builder: (_) {
-        return AlertDialog(
-          title: Text(existing != null ? 'Edit Reminder' : 'New Reminder'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Reminder Name'),
+      builder: (_) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: Text(existing != null ? 'Edit Reminder' : 'New Reminder'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(labelText: 'Reminder Name'),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text('Repeat every day'),
+                    Switch(
+                      value: _isDaily,
+                      onChanged: (val) => setState(() => _isDaily = val),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            actions: [
+              if (existing != null)
+                TextButton(
+                  onPressed: () {
+                    Provider.of<NotificationsNotifier>(context, listen: false)
+                        .deleteReminder(existing.id);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Reminder deleted: ${existing.name}')),
+                    );
+                    _resetFormState();
+                    Navigator.pop(context);
+                  },
+                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                  child: const Text('Delete'),
+                ),
+              TextButton(
+                onPressed: () {
+                  _resetFormState();
+                  Navigator.pop(context);
+                },
+                child: const Text('Cancel'),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text('Repeat every day'),
-                  Switch(
-                    value: _isDaily,
-                    onChanged: (val) {
-                      setState(() => _isDaily = val);
-                      Navigator.pop(context);
-                      _showReminderDialog(context, existing: existing);
-                    },
-                  )
-                ],
+              ElevatedButton(
+                onPressed: () {
+                  _scheduleReminder(context, existing: existing);
+                  Navigator.pop(context);
+                },
+                child: Text(existing != null ? 'Update' : 'Set'),
               ),
             ],
-          ),
-          actions: [
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () => Navigator.pop(context),
-            ),
-            ElevatedButton(
-              child: Text(existing != null ? 'Update' : 'Set'),
-              onPressed: () {
-                _scheduleReminder(context, existing: existing);
-                Navigator.pop(context);
-              },
-            )
-          ],
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
   void _scheduleReminder(BuildContext context, {Reminder? existing}) {
-    if (_selectedDateTime != null && _nameController.text.trim().isNotEmpty) {
-      final id = existing?.id ?? DateTime.now().millisecondsSinceEpoch.remainder(100000);
-      final reminder = Reminder(
-        id: id,
-        name: _nameController.text.trim(),
-        time: _selectedDateTime!,
-        isDaily: _isDaily,
-        isEnabled: true,
+    if (_selectedDateTime == null || _nameController.text.trim().isEmpty) return;
+
+    final id = existing?.id ?? DateTime.now().millisecondsSinceEpoch.remainder(100000);
+    final reminder = Reminder(
+      id: id,
+      name: _nameController.text.trim(),
+      time: _selectedDateTime!,
+      isDaily: _isDaily,
+      isEnabled: true,
+    );
+
+    final notifier = Provider.of<NotificationsNotifier>(context, listen: false);
+    if (existing != null) {
+      notifier.updateReminder(reminder);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Reminder updated: ${reminder.name}')),
       );
-
-      final notifier = Provider.of<NotificationsNotifier>(context, listen: false);
-      if (existing != null) {
-        notifier.updateReminder(reminder);
-      } else {
-        notifier.addReminder(reminder);
-      }
-
-      _selectedDateTime = null;
-      _nameController.clear();
-      _isDaily = false;
+    } else {
+      notifier.addReminder(reminder);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Reminder set for ${DateFormat.jm().format(reminder.time)}')),
+      );
     }
+
+    _resetFormState();
   }
 
   @override
   Widget build(BuildContext context) {
     final reminders = context.watch<NotificationsNotifier>().reminders;
-    final nextReminder = reminders.where((r) => r.isEnabled).fold<DateTime?>(null, (prev, r) {
-      if (prev == null || r.time.isBefore(prev)) return r.time;
-      return prev;
-    });
+
+    final createdReminders = reminders.where((r) => r.name.trim().isNotEmpty).toList();
+
+    final nextReminder = createdReminders
+        .where((r) => r.isEnabled)
+        .fold<DateTime?>(null, (prev, r) => prev == null || r.time.isBefore(prev) ? r.time : prev);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Reminder')),
@@ -143,14 +174,41 @@ class _NotificationsPageState extends State<NotificationsPage> {
             ),
           ),
           Expanded(
-            child: reminders.isEmpty
+            child: createdReminders.isEmpty
                 ? const Center(child: Text("No Reminders Yet"))
                 : ListView.builder(
-                    itemCount: reminders.length,
+                    itemCount: createdReminders.length,
                     itemBuilder: (context, index) {
-                      final reminder = reminders[index];
+                      final reminder = createdReminders[index];
                       return ListTile(
                         onTap: () => _pickDateTime(context, existing: reminder),
+                        onLongPress: () {
+                          showDialog(
+                            context: context,
+                            builder: (_) => AlertDialog(
+                              title: const Text("Delete Reminder"),
+                              content: Text("Are you sure you want to delete '${reminder.name}'?"),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text("Cancel"),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Provider.of<NotificationsNotifier>(context, listen: false)
+                                        .deleteReminder(reminder.id);
+                                    Navigator.pop(context);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text("Reminder deleted: ${reminder.name}")),
+                                    );
+                                  },
+                                  style: TextButton.styleFrom(foregroundColor: Colors.red),
+                                  child: const Text("Delete"),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                         leading: Text(
                           DateFormat.jm().format(reminder.time),
                           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
