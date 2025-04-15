@@ -1,5 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
+import 'package:expense_tracker/provider/analysis_notifier.dart';
 import 'package:expense_tracker/provider/category_notifier.dart';
 import 'package:expense_tracker/provider/common_notifier.dart';
 import 'package:flutter/material.dart';
@@ -161,12 +162,12 @@ Future<void> getSmsMessages() async {
     return amount;
   }
   
-  Future<void> refreshDates(CommonNotifier commonNotifier) async {
-    commonNotifier.isDataReady = false;
+  Future<void> refreshDates(AnalysisNotifier analysisNotifier) async {
+    analysisNotifier.isDataReady = false;
     _startDate = DateTime(DateTime.now().year, DateTime.now().month, 1);
     _endDate = DateTime.now();
     await getSmsMessages();
-    commonNotifier.loadChartData();
+    analysisNotifier.loadChartData();
     notifyListeners();
     
   }

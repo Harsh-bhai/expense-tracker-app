@@ -1,4 +1,6 @@
 import 'package:expense_tracker/models/hive_listtile_model.dart';
+import 'package:expense_tracker/provider/analysis_notifier.dart';
+import 'package:expense_tracker/provider/budget_notifier.dart';
 import 'package:expense_tracker/provider/category_notifier.dart';
 import 'package:expense_tracker/provider/common_notifier.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
@@ -17,7 +19,9 @@ void main() async {
   // Ensure checkFirstLaunch runs only after Hive initialization
   await checkFirstLaunch();
 
+  // notifications init
   await notificationsInit();
+  await createBudgetNotificationChannel();
 
   
 
@@ -28,6 +32,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => CategoryNotifier()),
         ChangeNotifierProvider(create: (_) => CommonNotifier()),
         ChangeNotifierProvider(create: (_) => NotificationsNotifier()),
+        ChangeNotifierProvider(create: (_) => BudgetNotifier()),
+        ChangeNotifierProvider(create: (_) => AnalysisNotifier()),
       ],
       child: const MyApp(),
     ),
@@ -50,6 +56,23 @@ Future<void> notificationsInit() async {
   debug: true,
     );
 }
+
+Future<void> createBudgetNotificationChannel() async {
+  await AwesomeNotifications().initialize(
+    null,
+    [
+      NotificationChannel(
+        channelKey: 'budget_channel',
+        channelName: 'Budget Notifications',
+        channelDescription: 'Notifications when budget limit is crossed',
+        defaultColor: Colors.red,
+        importance: NotificationImportance.High,
+        channelShowBadge: true,
+      ),
+    ],
+  );
+}
+
 
 Future<void> hiveInit() async {
   await Hive.initFlutter();
@@ -97,7 +120,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     MoneyNotifier moneyNotifier = Provider.of<MoneyNotifier>(context, listen: false);
-    CommonNotifier commonNotifier = Provider.of<CommonNotifier>(context, listen: false);
+    AnalysisNotifier analysisNotifier = Provider.of<AnalysisNotifier>(context, listen: false);
     moneyNotifier.getSmsMessages();
     Provider.of<CategoryNotifier>(context, listen: false).getCategories();
     return MaterialApp(
@@ -107,7 +130,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
         useMaterial3: true,
       ),
-      home: refreshWrapper(moneyNotifier, commonNotifier,
+      home: refreshWrapper(moneyNotifier, analysisNotifier,
               const LandingPage()),
       // home: const SplashScreen(),
     );
