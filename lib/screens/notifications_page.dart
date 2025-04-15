@@ -181,46 +181,28 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     itemBuilder: (context, index) {
                       final reminder = createdReminders[index];
                       return ListTile(
-                        onTap: () => _pickDateTime(context, existing: reminder),
-                        onLongPress: () {
-                          showDialog(
-                            context: context,
-                            builder: (_) => AlertDialog(
-                              title: const Text("Delete Reminder"),
-                              content: Text("Are you sure you want to delete '${reminder.name}'?"),
-                              actions: [
-                                TextButton(
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text("Cancel"),
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    Provider.of<NotificationsNotifier>(context, listen: false)
-                                        .deleteReminder(reminder.id);
-                                    Navigator.pop(context);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text("Reminder deleted: ${reminder.name}")),
-                                    );
-                                  },
-                                  style: TextButton.styleFrom(foregroundColor: Colors.red),
-                                  child: const Text("Delete"),
-                                ),
-                              ],
-                            ),
-                          );
-                        },
+                        onLongPress: () => _pickDateTime(context, existing: reminder),
                         leading: Text(
                           DateFormat.jm().format(reminder.time),
                           style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                         ),
                         title: Text(reminder.name),
                         subtitle: Text(reminder.isDaily ? 'Every day' : 'Ring once'),
-                        trailing: Switch(
-                          value: reminder.isEnabled,
-                          onChanged: (val) {
-                            Provider.of<NotificationsNotifier>(context, listen: false)
-                                .toggleReminder(reminder.id, val);
-                          },
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () => editReminder(context, reminder),
+                            ),
+                            Switch(
+                              value: reminder.isEnabled,
+                              onChanged: (val) {
+                                Provider.of<NotificationsNotifier>(context, listen: false)
+                                    .toggleReminder(reminder.id, val);
+                              },
+                            ),
+                          ],
                         ),
                       );
                     },
@@ -233,5 +215,33 @@ class _NotificationsPageState extends State<NotificationsPage> {
         child: const Icon(Icons.add),
       ),
     );
+  }
+
+  Future<dynamic> editReminder(BuildContext context, Reminder reminder) {
+    return showDialog(
+                          context: context,
+                          builder: (_) => AlertDialog(
+                            title: const Text("Delete Reminder"),
+                            content: Text("Are you sure you want to delete '${reminder.name}'?"),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text("Cancel"),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Provider.of<NotificationsNotifier>(context, listen: false)
+                                      .deleteReminder(reminder.id);
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text("Reminder deleted: ${reminder.name}")),
+                                  );
+                                },
+                                style: TextButton.styleFrom(foregroundColor: Colors.red),
+                                child: const Text("Delete"),
+                              ),
+                            ],
+                          ),
+                        );
   }
 }

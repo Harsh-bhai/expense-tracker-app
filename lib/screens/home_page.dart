@@ -1,5 +1,7 @@
 import 'package:expense_tracker/components/money_bubble.dart';
 import 'package:expense_tracker/models/listtile_model.dart';
+import 'package:expense_tracker/provider/analysis_notifier.dart';
+import 'package:expense_tracker/provider/category_notifier.dart';
 import 'package:expense_tracker/provider/common_notifier.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
 import 'package:expense_tracker/screens/about_page.dart';
@@ -19,6 +21,7 @@ class HomePage extends StatelessWidget {
     CommonNotifier commonNotifier = Provider.of<CommonNotifier>(context);
     String startDate =commonNotifier.getMonthYear(moneyNotifier.startDate ?? DateTime.now());
     String endDate = commonNotifier.getMonthYear(moneyNotifier.endDate ?? DateTime.now());
+    int money = moneyNotifier.creditMoney - moneyNotifier.debitMoney;
     final List<ListTileModel> options = [
       ListTileModel(
           title: 'Transactions',
@@ -108,13 +111,15 @@ class HomePage extends StatelessWidget {
           const SizedBox(height: 30),
           Container(
             decoration: BoxDecoration(
-              color: Colors.cyan.shade100.withOpacity(0.7),
+              color: money > 0 ? Colors.green : Colors.red,
               borderRadius: BorderRadius.circular(30.0),
             ),
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              "Net : ₹${moneyNotifier.creditMoney - moneyNotifier.debitMoney}",style: const TextStyle(
+              "Net : ₹$money",
+              style: const TextStyle(
                 fontWeight: FontWeight.bold,
+                color: Colors.white,
               ),
             ),
           ),

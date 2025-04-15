@@ -24,7 +24,12 @@ class _AnalysisPageState extends State<AnalysisPage> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.scheduleFrameCallback((_) {
-      Provider.of<AnalysisNotifier>(context, listen: false).loadChartData();
+      Provider.of<AnalysisNotifier>(context, listen: false)
+          .calculateCategoryWiseSpending(
+              categoryNotifier:
+                  Provider.of<CategoryNotifier>(context, listen: false),
+              moneyNotifier: Provider.of<MoneyNotifier>(context, listen: false),
+              context: context);
     });
   }
 
@@ -71,13 +76,13 @@ class _AnalysisPageState extends State<AnalysisPage> {
                     ),
                   ),
                   Card(
-                    shadowColor: Colors.grey,
-                    elevation: 10,
+                    // shadowColor: Colors.grey,
+                    elevation: 1,
                     margin: const EdgeInsets.all(16.0),
                     child: Container(
                       padding: const EdgeInsets.symmetric(vertical: 12.0),
                       decoration: BoxDecoration(
-                        color: Colors.grey.shade100,
+                        // color: Colors.grey.shade100,
                         borderRadius: BorderRadius.circular(12.0),
                       ),
                       child: Column(
@@ -257,45 +262,18 @@ class _AnalysisPageState extends State<AnalysisPage> {
   List<PieChartSectionData> _showingSections(
       BuildContext context, int? touchedIndex) {
     CategoryNotifier categoryNotifier = Provider.of<CategoryNotifier>(context);
-    MoneyNotifier moneyNotifier = Provider.of<MoneyNotifier>(context);
-    CommonNotifier commonNotifier =
-        Provider.of<CommonNotifier>(context, listen: false);
     AnalysisNotifier analysisNotifier = Provider.of<AnalysisNotifier>(context);
-    analysisNotifier.totalMoney = moneyNotifier.debitMoney;
-    analysisNotifier.knownCategoryExpense = 0;
 
-    categoryWiseMapInit(categoryNotifier, analysisNotifier.categoryWiseMoney);
     categoryNotifier.getCategoryMap(context);
     List<PieChartSectionData> sections = [];
 
     int index = 0; // Index tracker for sections
     try {
-      categoryNotifier.categoryMapExpense.forEach((key, value) {
-        HiveListTileModel? categoryName =
-            categoryNotifier.findCategory(key, isDebit: true);
+      analysisNotifier.categoryWiseMoney.forEach((categoryName, expense) {
+        HiveListTileModel? categoryModel =
+            categoryNotifier.findCategory(categoryName, isDebit: true);
 
-        for (var element in value) {
-          print("key: $key, value: $value");
-          SmsMessage? message = moneyNotifier.getDebitMessageById(element);
-          if (message == null ||
-              message.date!
-                      .isBefore(moneyNotifier.startDate ?? DateTime.now()) &&
-                  message.date!
-                      .isAfter(moneyNotifier.endDate ?? DateTime.now())) {
-            continue;
-          }
-          int amount = moneyNotifier.getMoneyFromRegex(
-              moneyNotifier.moneyregex, message);
-          analysisNotifier.categoryWiseMoney[categoryName?.title ?? ""] =
-              analysisNotifier.categoryWiseMoney[categoryName?.title ?? ""]! +
-                  amount;
-          analysisNotifier.knownCategoryExpense =
-              analysisNotifier.knownCategoryExpense + amount;
-        }
-        double percentage =
-            (analysisNotifier.categoryWiseMoney[categoryName?.title ?? ""]! /
-                    analysisNotifier.totalMoney) *
-                100;
+        double percentage = (expense / analysisNotifier.totalMoney) * 100;
 
         // Check if this section is touched
         // bool isTouched = (index == touchedIndex);
@@ -303,7 +281,7 @@ class _AnalysisPageState extends State<AnalysisPage> {
         double fontSize = 12; // Increase font size if touched
 
         PieChartSectionData section = PieChartSectionData(
-          color: categoryName?.bgColor,
+          color: categoryModel?.bgColor,
           value: percentage,
           title: '${percentage.toStringAsFixed(0)}%',
           radius: radius,
@@ -347,15 +325,5 @@ class _AnalysisPageState extends State<AnalysisPage> {
       print("error: $e");
     }
     return sections;
-  }
-
-  void categoryWiseMapInit(
-      CategoryNotifier categoryNotifier, Map<String, int> categoryWiseMoney) {
-    for (var element in categoryNotifier.expenseCategories) {
-      categoryWiseMoney[element.title] = 0;
-    }
-    for (var element in categoryNotifier.incomeCategories) {
-      categoryWiseMoney[element.title] = 0;
-    }
   }
 }
