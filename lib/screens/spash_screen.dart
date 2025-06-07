@@ -1,5 +1,5 @@
 import 'package:expense_tracker/provider/analysis_notifier.dart';
-import 'package:expense_tracker/provider/common_notifier.dart';
+import 'package:expense_tracker/provider/bank_notifier.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
 import 'package:expense_tracker/screens/landing_page.dart';
 import 'package:flutter/material.dart';
@@ -33,11 +33,12 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         Provider.of<MoneyNotifier>(context, listen: false);
     AnalysisNotifier analysisNotifier =
         Provider.of<AnalysisNotifier>(context, listen: false);
+        BankNotifier bankNotifier = Provider.of<BankNotifier>(context, listen:false);
 
     await Future.delayed(const Duration(seconds: 2), () {
       Navigator.pushReplacement(context,
       MaterialPageRoute(
-          builder: (context) => refreshWrapper(moneyNotifier, analysisNotifier,
+          builder: (context) => refreshWrapper(moneyNotifier, analysisNotifier, bankNotifier,
               const LandingPage())), // Change to your main screen
     );
     });
@@ -71,7 +72,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
 }
 
 RefreshIndicator refreshWrapper(
-    MoneyNotifier moneyNotifier, AnalysisNotifier analysisNotifier, Widget child) {
+    MoneyNotifier moneyNotifier, AnalysisNotifier analysisNotifier, BankNotifier bankNotifier ,Widget child) {
   return RefreshIndicator(
     color: Colors.deepPurple,
     backgroundColor: Colors.white,
@@ -79,7 +80,7 @@ RefreshIndicator refreshWrapper(
     triggerMode: RefreshIndicatorTriggerMode.onEdge,
     displacement: 100,
     edgeOffset: 20,
-    onRefresh: () => moneyNotifier.refreshDates(analysisNotifier),
+    onRefresh: () => moneyNotifier.refreshDates(analysisNotifier, bankNotifier),
     child: child,
   );
 }

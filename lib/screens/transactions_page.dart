@@ -79,7 +79,7 @@ class _TransactionsPageState extends State<TransactionsPage>
               HiveListTileModel? currentCategory = categoryNotifier
                   .findCategory(currentCategoryName, isDebit: isDebit);
               print("currentCategoryName: $currentCategory");
-              Match? moneyMatch = moneyNotifier.moneyregex.firstMatch(
+              Match? moneyMatch = moneyNotifier.moneyregex?.firstMatch(
                   message.body!.toLowerCase().replaceFirst(",", ""));
               if (moneyMatch != null) {
                 int amount = int.parse(moneyMatch.group(1)!);

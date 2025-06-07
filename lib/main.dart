@@ -1,5 +1,6 @@
 import 'package:expense_tracker/models/hive_listtile_model.dart';
 import 'package:expense_tracker/provider/analysis_notifier.dart';
+import 'package:expense_tracker/provider/bank_notifier.dart';
 import 'package:expense_tracker/provider/budget_notifier.dart';
 import 'package:expense_tracker/provider/category_notifier.dart';
 import 'package:expense_tracker/provider/common_notifier.dart';
@@ -34,6 +35,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => NotificationsNotifier()),
         ChangeNotifierProvider(create: (_) => BudgetNotifier()),
         ChangeNotifierProvider(create: (_) => AnalysisNotifier()),
+        ChangeNotifierProvider(create: (_) => BankNotifier()),
       ],
       child: const MyApp(),
     ),
@@ -109,6 +111,7 @@ Future<void> checkFirstLaunch() async {
       ),
     ]);
 
+
     // Set first launch to false
     settingsBox.put('isFirstLaunch', false);
   }
@@ -121,8 +124,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     MoneyNotifier moneyNotifier = Provider.of<MoneyNotifier>(context, listen: false);
     AnalysisNotifier analysisNotifier = Provider.of<AnalysisNotifier>(context, listen: false);
-    moneyNotifier.getSmsMessages();
-    Provider.of<CategoryNotifier>(context, listen: false).getCategories();
+    BankNotifier bankNotifier = Provider.of<BankNotifier>(context, listen:false);
+    initConfig(moneyNotifier ,context);
     return MaterialApp(
       title: 'Expense Tracker',
       debugShowCheckedModeBanner: false,
@@ -130,13 +133,21 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
         useMaterial3: true,
       ),
-      home: refreshWrapper(moneyNotifier, analysisNotifier,
+      home: refreshWrapper(moneyNotifier, analysisNotifier, bankNotifier,
               const LandingPage()),
       // home: const SplashScreen(),
     );
   }
 
-
-
+  void initConfig(MoneyNotifier moneyNotifier, BuildContext context) {
+    BankNotifier bankNotifier = Provider.of<BankNotifier>(context, listen:false);
+    bankNotifier.getBank();
+    moneyNotifier.getSmsMessages(bankNotifier);
+    Provider.of<CategoryNotifier>(context, listen: false).getCategories();
+    moneyNotifier.debitregex = bankNotifier.selectedBank?.debitRegex;
+    moneyNotifier.creditregex = bankNotifier.selectedBank?.creditRegex;
+    moneyNotifier.moneyregex = bankNotifier.selectedBank?.moneyRegex;
+  }
  
 }
+

@@ -1,5 +1,7 @@
+import "package:expense_tracker/provider/bank_notifier.dart";
 import "package:expense_tracker/provider/money_notifier.dart";
 import "package:flutter/material.dart";
+import "package:provider/provider.dart";
 class DatePickerButton extends StatelessWidget {
   const DatePickerButton({
     super.key,
@@ -10,6 +12,7 @@ class DatePickerButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    BankNotifier bankNotifier = Provider.of<BankNotifier>(context, listen:false);
     return FloatingActionButton(
       backgroundColor: Colors.green.shade100,
       shape: RoundedRectangleBorder(
@@ -35,7 +38,7 @@ class DatePickerButton extends StatelessWidget {
                               color: Colors.green)
                           : null,
                       onTap: () {
-                        moneyNotifier.selectStartDate(context, setterState);
+                        moneyNotifier.selectStartDate(context, setterState, bankNotifier);
                       },
                     ),
                   ),
@@ -48,7 +51,7 @@ class DatePickerButton extends StatelessWidget {
                               color: Colors.green)
                           : null,
                       onTap: () {
-                        moneyNotifier.selectEndDate(context, setterState);
+                        moneyNotifier.selectEndDate(context, setterState, bankNotifier);
                       },
                     ),
                   ),
