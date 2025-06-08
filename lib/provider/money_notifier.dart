@@ -137,6 +137,7 @@ class MoneyNotifier extends ChangeNotifier {
     if (picked != null && picked != _startDate) {
       _startDate = picked;
       setterState(() {});
+      hasFetchedOnce = false;
       await getSmsMessages(bankNotifier);
     }
     isStartDateLoading = false;
@@ -156,6 +157,7 @@ class MoneyNotifier extends ChangeNotifier {
     if (picked != null && picked != _endDate) {
       _endDate = picked;
       setterState(() {});
+      hasFetchedOnce = false;
       await getSmsMessages(bankNotifier);
     }
     isEndDateLoading = false;
@@ -188,6 +190,7 @@ class MoneyNotifier extends ChangeNotifier {
     analysisNotifier.isDataReady = false;
     _startDate = DateTime(DateTime.now().year, DateTime.now().month, 1);
     _endDate = DateTime.now();
+    hasFetchedOnce = false;
     await getSmsMessages(bankNotifier);
     analysisNotifier.loadChartData();
     notifyListeners();

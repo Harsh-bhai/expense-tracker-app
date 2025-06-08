@@ -11,32 +11,6 @@ class MyBottomBar extends StatefulWidget {
 
 class _MyBottomBarState extends State<MyBottomBar> {
   void _onItemTapped(int index, CommonNotifier commonNotifier) {
-    // switch (index) {
-    //   case 0:
-    //     Navigator.pushReplacement(
-    //       context,
-    //       MaterialPageRoute(builder: (context) => const HomePage()),
-    //     );
-    //     break;
-    //   case 1:
-    //     Navigator.pushReplacement(
-    //       context,
-    //       MaterialPageRoute(builder: (context) => const AnalysisPage()),
-    //     );
-    //     break;
-    //   case 2:
-    //     Navigator.pushReplacement(
-    //       context,
-    //       MaterialPageRoute(builder: (context) => const CategoryPage()),
-    //     );
-    //     break;
-    //   case 3:
-    //     Navigator.pushReplacement(
-    //       context,
-    //       MaterialPageRoute(builder: (context) => const AccountPage()),
-    //     );
-    //     break;
-    // }
     setState(() {
       commonNotifier.selectedIndex = index;
     });
