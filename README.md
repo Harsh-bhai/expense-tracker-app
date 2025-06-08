@@ -4,7 +4,10 @@
 - You can track your unnessary expenses and avoid them.
 - It gets the data from the Bank transaction SMS.
 
-### NOTE : As of Now, this application will work only for Bank Of Baroda(BOB) customers.
+### NOTE : Supported banks: 
+- Bank Of Baroda (BOB)
+- State Bank of India (SBI)
+- United Commercial Bank (UCO)
 
 ## Technologies used
 - Flutter
