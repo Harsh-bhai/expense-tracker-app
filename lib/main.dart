@@ -7,6 +7,7 @@ import 'package:expense_tracker/provider/common_notifier.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
 import 'package:expense_tracker/provider/notifications_notifier.dart';
 import 'package:expense_tracker/screens/landing_page.dart';
+import 'package:expense_tracker/screens/onboarding_screen.dart';
 import 'package:expense_tracker/screens/spash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -16,15 +17,13 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await hiveInit();
-  
+
   // Ensure checkFirstLaunch runs only after Hive initialization
   await checkFirstLaunch();
 
   // notifications init
   await notificationsInit();
   await createBudgetNotificationChannel();
-
-  
 
   runApp(
     MultiProvider(
@@ -44,29 +43,29 @@ void main() async {
 
 Future<void> notificationsInit() async {
   await AwesomeNotifications().initialize(
-  null,
-  [
-    NotificationChannel(
-      channelKey: 'reminder_channel',
-      channelName: 'Reminders',
-      channelDescription: 'Reminder notifications to add category to transactions',
-      defaultColor: Colors.blue,
-      importance: NotificationImportance.High,
-      ledColor: Colors.white,
-    ),
-  ],
-  debug: true,
-    );
-    bool isAllowed = await AwesomeNotifications().isNotificationAllowed();
-  if (!isAllowed) {
-    // Ask user for permission
-    await AwesomeNotifications().requestPermissionToSendNotifications();
-  }
-    
+    null,
+    [
+      NotificationChannel(
+        channelKey: 'reminder_channel',
+        channelName: 'Reminders',
+        channelDescription:
+            'Reminder notifications to add category to transactions',
+        defaultColor: Colors.blue,
+        importance: NotificationImportance.High,
+        ledColor: Colors.white,
+      ),
+    ],
+    debug: true,
+  );
+  // bool isAllowed = await AwesomeNotifications().isNotificationAllowed();
+  // if (!isAllowed) {
+  //   // Ask user for permission
+  //   await AwesomeNotifications().requestPermissionToSendNotifications();
+  // }
 }
 
 Future<void> createBudgetNotificationChannel() async {
-await AwesomeNotifications().initialize(
+  await AwesomeNotifications().initialize(
     null,
     [
       NotificationChannel(
@@ -83,17 +82,18 @@ await AwesomeNotifications().initialize(
     debug: true,
   );
 
-  bool isAllowed = await AwesomeNotifications().isNotificationAllowed();
-  if (!isAllowed) {
-    // Ask user for permission
-    await AwesomeNotifications().requestPermissionToSendNotifications();
-  }}
-
+  // bool isAllowed = await AwesomeNotifications().isNotificationAllowed();
+  // if (!isAllowed) {
+  //   // Ask user for permission
+  //   await AwesomeNotifications().requestPermissionToSendNotifications();
+  // }
+}
 
 Future<void> hiveInit() async {
   await Hive.initFlutter();
-  Hive.registerAdapter(HiveListTileModelAdapter()); // Register the generated adapter
-  
+  Hive.registerAdapter(
+      HiveListTileModelAdapter()); // Register the generated adapter
+
   // Open the necessary boxes before running the app
   await Hive.openBox<List>('categoryBox');
   await Hive.openBox('settings');
@@ -101,7 +101,6 @@ Future<void> hiveInit() async {
   await Hive.openBox('budget'); // for budget limit
   await Hive.openBox('notification'); // to send notification 1 time
 }
-
 
 Future<void> checkFirstLaunch() async {
   var categoryBox = Hive.box<List>('categoryBox');
@@ -115,7 +114,7 @@ Future<void> checkFirstLaunch() async {
         title: 'Food',
         subtitle: 'Groceries, restaurants, etc.',
         icon: Icons.fastfood, // Use codePoint for IconData storage
-        bgColor: Colors.red,      // Use value for Color storage
+        bgColor: Colors.red, // Use value for Color storage
       )
     ]);
     categoryBox.put('IncomeCategoryArray', [
@@ -123,10 +122,9 @@ Future<void> checkFirstLaunch() async {
         title: 'Salary',
         subtitle: 'Groceries, restaurants, etc.',
         icon: Icons.currency_rupee_sharp, // Use codePoint for IconData storage
-        bgColor: Colors.green,                // Use value for Color storage
+        bgColor: Colors.green, // Use value for Color storage
       ),
     ]);
-
 
     // Set first launch to false
     settingsBox.put('isFirstLaunch', false);
@@ -138,9 +136,14 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    MoneyNotifier moneyNotifier = Provider.of<MoneyNotifier>(context, listen: false);
-    AnalysisNotifier analysisNotifier = Provider.of<AnalysisNotifier>(context, listen: false);
-    BankNotifier bankNotifier = Provider.of<BankNotifier>(context, listen:false);
+    var settingsBox = Hive.box('settings');
+    bool showOnboarding = settingsBox.get('showOnboarding', defaultValue: true);
+    MoneyNotifier moneyNotifier =
+        Provider.of<MoneyNotifier>(context, listen: false);
+    AnalysisNotifier analysisNotifier =
+        Provider.of<AnalysisNotifier>(context, listen: false);
+    BankNotifier bankNotifier =
+        Provider.of<BankNotifier>(context, listen: false);
     // initConfig(moneyNotifier ,context);
     return MaterialApp(
       title: 'Expense Tracker',
@@ -149,13 +152,10 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
         useMaterial3: true,
       ),
-      home: refreshWrapper(moneyNotifier, analysisNotifier, bankNotifier,
+      home: showOnboarding
+          ? const OnboardingScreen()
+          : refreshWrapper(moneyNotifier, analysisNotifier, bankNotifier,
               const LandingPage()),
-      // home: const SplashScreen(),
     );
   }
-
-
- 
 }
-

@@ -1,7 +1,9 @@
 import 'package:expense_tracker/models/bank_model.dart';
+import 'package:expense_tracker/provider/money_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:hive/hive.dart';
+import 'package:provider/provider.dart';
 
 class BankNotifier extends ChangeNotifier {
   BankModel? _selectedBank;
@@ -30,6 +32,8 @@ class BankNotifier extends ChangeNotifier {
   }
 
   Future<void> showBankSelectionDialog(BuildContext context) async {
+    final moneyNotifier = Provider.of<MoneyNotifier>(context, listen: false);
+    final bankNotifier = Provider.of<BankNotifier>(context, listen: false);
     await showDialog<void>(
       context: context,
       builder: (BuildContext context) {
@@ -47,6 +51,8 @@ class BankNotifier extends ChangeNotifier {
                   title: Text(bank.bankName),
                   onTap: () {
                     selectedBank = bank;
+                    moneyNotifier.hasFetchedOnce = false;
+                    moneyNotifier.getSmsMessages(bankNotifier);
                     Navigator.of(context).pop();
                   },
                 );
@@ -70,12 +76,12 @@ class BankNotifier extends ChangeNotifier {
         creditSenders: ["-BOBTXN"]),
     BankModel(
         bankName: "State Bank of India",
-        creditRegex: RegExp(r'credited'),
-        debitRegex: RegExp(r'debited'),
-        moneyRegex: RegExp(r''),
+        creditRegex: RegExp(r"\b(credit(ed)?)\s*"),
+        debitRegex: RegExp(r"\b(debit(ed)? | transferred | withdrawn)\s*"),
+        moneyRegex: RegExp(r"(?:rs\.?|inr|debited by)\s*([0-9]+)"),
         image: Image.asset('assets/images/sbi.png'),
-        debitSenders: ["-BOBSMS", "-BOBTXN"], 
-        creditSenders: ["-BOBTXN"]),
+        debitSenders: ["SBI"], 
+        creditSenders: ["SBI"]),
     BankModel(
         bankName: "UCO Bank",
         creditRegex: RegExp(r'credited'),

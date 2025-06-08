@@ -3,9 +3,7 @@ import 'package:expense_tracker/provider/bank_notifier.dart';
 import 'package:expense_tracker/screens/about_page.dart';
 import 'package:expense_tracker/screens/budget_page.dart';
 import 'package:expense_tracker/screens/categories_page.dart';
-import 'package:expense_tracker/screens/onboarding1.dart';
-import 'package:expense_tracker/screens/onboarding2.dart';
-import 'package:expense_tracker/screens/onboarding3.dart';
+import 'package:expense_tracker/screens/onboarding_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -39,17 +37,7 @@ class SettingsPage extends StatelessWidget {
         title: 'onboarding1',
         subtitle: 'Set up notifications',
         icon: Icons.notification_add,
-        page: const Onboarding1()),
-    ListTileModel(
-        title: 'onboarding2',
-        subtitle: 'Set up notifications',
-        icon: Icons.notification_add,
-        page: const Onboarding2()),
-    ListTileModel(
-        title: 'onboarding3',
-        subtitle: 'Set up notifications',
-        icon: Icons.notification_add,
-        page: const Onboarding3()),
+        page: const OnboardingScreen()),
   ];
 
   SettingsPage({super.key});

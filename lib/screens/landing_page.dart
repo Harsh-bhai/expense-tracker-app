@@ -3,6 +3,7 @@ import 'package:expense_tracker/components/mybottom_bar.dart';
 import 'package:expense_tracker/provider/common_notifier.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:provider/provider.dart';
 
 class LandingPage extends StatelessWidget {
@@ -10,6 +11,8 @@ class LandingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var settingsBox = Hive.box('settings');
+    settingsBox.put('showOnboarding', false);
     CommonNotifier commonNotifier = Provider.of<CommonNotifier>(context);
     MoneyNotifier moneyNotifier = Provider.of<MoneyNotifier>(context);
     return PopScope(
