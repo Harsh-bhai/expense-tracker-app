@@ -1,15 +1,11 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:expense_tracker/models/onboarding_page_model.dart';
 import 'package:expense_tracker/provider/bank_notifier.dart';
-import 'package:expense_tracker/screens/home_page.dart';
+import 'package:expense_tracker/screens/landing_page.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:lottie/lottie.dart';
-import 'package:flutter/services.dart' show rootBundle;
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -112,7 +108,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       .showBankSelectionDialog(context);
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => const HomePage()),
+                    MaterialPageRoute(builder: (context) => const LandingPage()),
                   );
                 }
 

@@ -4,6 +4,7 @@ import 'package:expense_tracker/screens/about_page.dart';
 import 'package:expense_tracker/screens/budget_page.dart';
 import 'package:expense_tracker/screens/categories_page.dart';
 import 'package:expense_tracker/screens/onboarding_screen.dart';
+import 'package:expense_tracker/screens/theme_page.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -20,7 +21,7 @@ class SettingsPage extends StatelessWidget {
       title: 'Theme',
       subtitle: 'Select your preferred theme',
       icon: Icons.sunny,
-      page: const AboutPage(),
+      page: const ThemePage(),
     ),
     ListTileModel(
       title: 'Budget',
@@ -33,11 +34,7 @@ class SettingsPage extends StatelessWidget {
         subtitle: 'Learn more about us',
         icon: Icons.info,
         page: const AboutPage()),
-    ListTileModel(
-        title: 'onboarding1',
-        subtitle: 'Set up notifications',
-        icon: Icons.notification_add,
-        page: const OnboardingScreen()),
+
   ];
 
   SettingsPage({super.key});
