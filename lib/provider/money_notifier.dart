@@ -48,6 +48,13 @@ class MoneyNotifier extends ChangeNotifier {
 
       for (final message in messages) {
         final messageDate = message.date;
+
+            // if message came today print all sender name with bodyAdd commentMore actions
+        // if (messageDate?.day == DateTime.now().day &&
+        //     messageDate?.month == DateTime.now().month &&
+        //     messageDate?.year == DateTime.now().year) {
+        //   print("Today's message from ${ message.sender}: ${message.body} ");
+        // }
         if (messageDate != null &&
             messageDate.isAfter(startDate) &&
             messageDate.isBefore(endDate)) {
