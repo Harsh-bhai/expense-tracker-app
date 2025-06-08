@@ -25,10 +25,13 @@ class MoneyNotifier extends ChangeNotifier {
   final Map<DateTime, List<MapEntry<int, DateTime>>> _sameDayMoney =
       {}; // jugad for bob
 
+  bool hasFetchedOnce = false;
   Future<void> getSmsMessages(BankNotifier bankNotifier) async {
+    if (hasFetchedOnce) return;
+    hasFetchedOnce = true;
     final selectedBank = bankNotifier.selectedBank;
-    print("selectedbank: $selectedBank");
     isMessagesLoading = true;
+    notifyListeners();
     creditMoney = 0;
     debitMoney = 0;
 
@@ -109,8 +112,8 @@ class MoneyNotifier extends ChangeNotifier {
           }
         }
       }
-      notifyListeners();
       isMessagesLoading = false;
+      notifyListeners();
     }
   }
 

@@ -57,23 +57,37 @@ Future<void> notificationsInit() async {
   ],
   debug: true,
     );
+    bool isAllowed = await AwesomeNotifications().isNotificationAllowed();
+  if (!isAllowed) {
+    // Ask user for permission
+    await AwesomeNotifications().requestPermissionToSendNotifications();
+  }
+    
 }
 
 Future<void> createBudgetNotificationChannel() async {
-  await AwesomeNotifications().initialize(
+await AwesomeNotifications().initialize(
     null,
     [
       NotificationChannel(
         channelKey: 'budget_channel',
-        channelName: 'Budget Notifications',
-        channelDescription: 'Notifications when budget limit is crossed',
+        channelName: 'Budget Alerts',
+        channelDescription: 'Notifications when budget is exceeded',
         defaultColor: Colors.red,
+        ledColor: Colors.white,
         importance: NotificationImportance.High,
         channelShowBadge: true,
-      ),
+        playSound: true,
+      )
     ],
+    debug: true,
   );
-}
+
+  bool isAllowed = await AwesomeNotifications().isNotificationAllowed();
+  if (!isAllowed) {
+    // Ask user for permission
+    await AwesomeNotifications().requestPermissionToSendNotifications();
+  }}
 
 
 Future<void> hiveInit() async {
@@ -84,6 +98,8 @@ Future<void> hiveInit() async {
   await Hive.openBox<List>('categoryBox');
   await Hive.openBox('settings');
   await Hive.openBox('maps');
+  await Hive.openBox('budget'); // for budget limit
+  await Hive.openBox('notification'); // to send notification 1 time
 }
 
 
@@ -125,7 +141,7 @@ class MyApp extends StatelessWidget {
     MoneyNotifier moneyNotifier = Provider.of<MoneyNotifier>(context, listen: false);
     AnalysisNotifier analysisNotifier = Provider.of<AnalysisNotifier>(context, listen: false);
     BankNotifier bankNotifier = Provider.of<BankNotifier>(context, listen:false);
-    initConfig(moneyNotifier ,context);
+    // initConfig(moneyNotifier ,context);
     return MaterialApp(
       title: 'Expense Tracker',
       debugShowCheckedModeBanner: false,
@@ -139,15 +155,7 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  void initConfig(MoneyNotifier moneyNotifier, BuildContext context) {
-    BankNotifier bankNotifier = Provider.of<BankNotifier>(context, listen:false);
-    bankNotifier.getBank();
-    moneyNotifier.getSmsMessages(bankNotifier);
-    Provider.of<CategoryNotifier>(context, listen: false).getCategories();
-    moneyNotifier.debitregex = bankNotifier.selectedBank?.debitRegex;
-    moneyNotifier.creditregex = bankNotifier.selectedBank?.creditRegex;
-    moneyNotifier.moneyregex = bankNotifier.selectedBank?.moneyRegex;
-  }
+
  
 }
 

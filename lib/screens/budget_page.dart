@@ -18,9 +18,10 @@ class _BudgetPageState extends State<BudgetPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.scheduleFrameCallback((_) {
-      Provider.of<AnalysisNotifier>(context, listen: false).calculateCategoryWiseSpending(
+    WidgetsBinding.instance.scheduleFrameCallback((_) async {
+      await Provider.of<AnalysisNotifier>(context, listen: false).calculateCategoryWiseSpending(
         categoryNotifier: Provider.of<CategoryNotifier>(context, listen: false),
+        budgetNotifier: Provider.of<BudgetNotifier>(context, listen: false),
         moneyNotifier: Provider.of<MoneyNotifier>(context, listen: false),
         context: context,
       );
@@ -32,6 +33,7 @@ class _BudgetPageState extends State<BudgetPage> {
     final categoryNotifier = Provider.of<CategoryNotifier>(context);
     final analysisNotifier = Provider.of<AnalysisNotifier>(context);
     final budgetNotifier = Provider.of<BudgetNotifier>(context);
+    
 
     return Scaffold(
       appBar: AppBar(title: const Text("Budget Manager")),

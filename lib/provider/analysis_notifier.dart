@@ -1,14 +1,20 @@
 import 'package:expense_tracker/models/hive_listtile_model.dart';
+import 'package:expense_tracker/provider/budget_notifier.dart';
 import 'package:expense_tracker/provider/category_notifier.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:intl/intl.dart';
-import 'package:path/path.dart';
 
 class AnalysisNotifier extends ChangeNotifier {
-  Map<String, int> _categoryWiseMoney = {};
+  Map<String, double> _categoryWiseMoney = {};
+  Map<String, double> get categoryWiseMoney => _categoryWiseMoney;
+  set categoryWiseMoney(Map<String, double> value) {
+    _categoryWiseMoney = value;
+    notifyListeners();
+  }
+
   int _totalMoney = 0;
   int _knownCategoryExpense = 0;
   DateTime? _startDate;
@@ -18,12 +24,6 @@ class AnalysisNotifier extends ChangeNotifier {
 
   set isDataReady(bool value) {
     _isDataReady = value;
-    notifyListeners();
-  }
-
-  Map<String, int> get categoryWiseMoney => _categoryWiseMoney;
-  set categoryWiseMoney(Map<String, int> value) {
-    _categoryWiseMoney = value;
     notifyListeners();
   }
 
@@ -69,10 +69,11 @@ class AnalysisNotifier extends ChangeNotifier {
     isDataReady = true;
   }
 
-  void calculateCategoryWiseSpending(
+  Future<void> calculateCategoryWiseSpending(
       {required CategoryNotifier categoryNotifier,
+      required BudgetNotifier budgetNotifier,
       required MoneyNotifier moneyNotifier,
-      required BuildContext context}) {
+      required BuildContext context}) async {
     totalMoney = moneyNotifier.debitMoney;
     knownCategoryExpense = 0;
     categoryWiseMoney.clear();
@@ -112,7 +113,10 @@ class AnalysisNotifier extends ChangeNotifier {
       }
     });
 
+    budgetNotifier.categorySpent = categoryWiseMoney;
+    budgetNotifier.overallSpent = totalMoney.toDouble();
     isDataReady = true;
+    await budgetNotifier.throwNotificationIfLimitExceeded();
     notifyListeners();
   }
 }

@@ -1,13 +1,13 @@
 import 'package:expense_tracker/components/analysis_expansion_tile.dart';
 import 'package:expense_tracker/models/hive_listtile_model.dart';
 import 'package:expense_tracker/provider/analysis_notifier.dart';
+import 'package:expense_tracker/provider/budget_notifier.dart';
 import 'package:expense_tracker/provider/category_notifier.dart';
 import 'package:expense_tracker/provider/common_notifier.dart';
 import 'package:expense_tracker/provider/money_notifier.dart';
 import 'package:expense_tracker/screens/transactions_page.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter_sms_inbox/flutter_sms_inbox.dart';
 import 'package:provider/provider.dart';
 
 class AnalysisPage extends StatefulWidget {
@@ -23,11 +23,12 @@ class _AnalysisPageState extends State<AnalysisPage> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.scheduleFrameCallback((_) {
-      Provider.of<AnalysisNotifier>(context, listen: false)
+    WidgetsBinding.instance.scheduleFrameCallback((_) async {
+      await Provider.of<AnalysisNotifier>(context, listen: false)
           .calculateCategoryWiseSpending(
               categoryNotifier:
                   Provider.of<CategoryNotifier>(context, listen: false),
+                  budgetNotifier: Provider.of<BudgetNotifier>(context, listen: false),
               moneyNotifier: Provider.of<MoneyNotifier>(context, listen: false),
               context: context);
     });
@@ -320,7 +321,6 @@ class _AnalysisPageState extends State<AnalysisPage> {
         ),
       );
       sections.add(unknownMoneySection);
-      print("index: $index");
     } catch (e) {
       print("error: $e");
     }
